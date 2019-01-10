@@ -1,0 +1,33 @@
+- config:
+    name: pact测试用
+    request:
+      base_url: http://127.0.0.1:8080
+
+- test:
+    name: test1
+    request:
+      url:  /test
+      method:  get
+    teardown_hooks:
+    - ${pact_verify($response, test_pact_1)}
+    validate:
+    - eq: [status_code,200]
+    # 契约校验结果
+    - eq: [pact_verify_result,true]
+    # 输出校验信息到测试报告中
+    - len_gt: [pact_verify_info,1]
+
+- test:
+    name: test2
+    request:
+      url:  /test2
+      method:  get
+    teardown_hooks:
+    - ${pact_verify($response, test_pact_1)}
+    validate:
+    - eq: [status_code,200]
+    # 契约校验结果
+    - eq: [pact_verify_result,true]
+    # 输出校验信息到测试报告中
+    - len_gt: [pact_verify_info,1]
+
