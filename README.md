@@ -127,7 +127,7 @@ expect_format_3 = Like('11')
 # 预期返回数据actual为dict结构，actual['k1'] == type('v1')
 expect_format_4 = Like({'k1':'v1'})
 ```
-3. EachLike类
+3. EachLike类  
 校验规则：数组类型匹配
 ```python
 # 预期[type(11)]
