@@ -7,7 +7,6 @@ class Matcher(object):
     json_class_key = 'json_class'
     contents_key = 'contents'
 
-    # matcher类型只允许为dict
     def __init__(self, matcher):
         self.matcher = matcher
 
@@ -31,7 +30,7 @@ class Matcher(object):
         # dict类型
         if type(self.matcher) == dict:
             for k, v in self.matcher.items():
-                if isinstance(v, (Like, EachLike, Term)):
+                if isinstance(v, (Like, EachLike, Term, Enum)):
                     matcher_dict[self.contents_key][k] = v.generate()
                 else:
                     matcher_dict[self.contents_key][k] = v
@@ -70,7 +69,7 @@ class EachLike(Matcher):
 
         # EachLike中只允许嵌套基础数据类型和EachLike类型
         valid_types = (
-            type(None), list, dict, int, float, six.string_types, EachLike)
+            type(None), list, dict, int, float, six.string_types, EachLike,Enum)
 
         assert isinstance(matcher, valid_types), (
             "matcher must be one of '{}', got '{}'".format(
@@ -146,7 +145,7 @@ class Term(Matcher):
     contract, the value `dark` will be returned by the mock service.
     """
 
-    def __init__(self, matcher, example = ''):
+    def __init__(self, matcher, example=''):
         """
         Create a new Term.
 
@@ -187,6 +186,32 @@ class Term(Matcher):
         assert (m is not None), ('Term example regex test fail')
 
 
+class Enum(Matcher):
+    """Base class for defining complex contract expectations."""
+
+    def __init__(self, matcher):
+        self.matcher = matcher
+
+        # 枚举类型参数只能为列表
+        valid_types = (
+            list)
+
+        assert isinstance(matcher, valid_types), (
+            "matcher must be one of '{}', got '{}'".format(
+                valid_types, type(matcher)))
+
+    def generate(self):
+        """
+        Get the value that the mock service should use for this Matcher.
+
+        :rtype: any
+        """
+        return {
+            'json_class': 'Enum',
+            'contents': from_term(self.matcher)
+        }
+
+
 def from_term(term):
     """
     Parse the provided term into the JSON for the mock service.
@@ -220,6 +245,7 @@ class PactVerify:
         self.value_not_match_error = []
         self.type_not_match_error = []
         self.list_len_not_match_error = []
+        self.enum_not_match_error = []
 
     def verify(self, actual_data, generate_dict=None):
         json_class_key, contents_key = 'json_class', 'contents'
@@ -304,6 +330,10 @@ class PactVerify:
                 if self._check_param_type(actual_data, type(example)):
                     self._check_param_value(actual_data, regex_str, regex_mode=True)
 
+            elif json_class == 'Enum':
+                expect_enum = contents
+                self._check_enum_element(actual_data, expect_enum)
+
     # 正常契约校验,严格匹配
     def _normal_pact_verify(self, actual_data, generate_dict):
         try:
@@ -369,6 +399,19 @@ class PactVerify:
                 self._update_len_error(target_data, len_min)
         return check_result
 
+    # 校验枚举元素
+    def _check_enum_element(self, target_data, expect_enum):
+        check_result = True
+        try:
+            if target_data not in expect_enum:
+                check_result = False
+        except Exception:
+            check_result = False
+
+        if not check_result:
+            self._update_enum_error(target_data, expect_enum)
+        return check_result
+
     # 更新type类型错误
     def _update_type_error(self, target_data, expect_type):
         self.verify_result = False
@@ -409,6 +452,14 @@ class PactVerify:
         }
         self.list_len_not_match_error.append(temp)
 
+    def _update_enum_error(self, target_data, expect_enum):
+        self.verify_result = False
+        temp = {
+            'actual_value': target_data,
+            'expect_enum': expect_enum
+        }
+        self.enum_not_match_error.append(temp)
+
     # 检查是否是matcher匹配的json
     def _is_matcher_json(self, target_json):
         result = False
@@ -428,6 +479,7 @@ class PactVerify:
             'value_not_match_error': self.value_not_match_error,
             'type_not_match_error': self.type_not_match_error,
             'list_len_not_match_error': self.list_len_not_match_error,
+            'enum_not_match_error': self.enum_not_match_error
         }
 
 
