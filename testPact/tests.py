@@ -1,7 +1,7 @@
 # coding:utf-8
 
 import unittest
-from .matchers import Matcher, Like, EachLike, Term,Enum, PactVerify
+from .matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
 
 class Test(unittest.TestCase):
@@ -146,7 +146,7 @@ class Test(unittest.TestCase):
             'valid': True,
             'info': None,
             'info_1': [11],
-            'info_2': Term(r'\d{2}',11)
+            'info_2': Term(r'\d{2}', 11)
         })
         result_1 = {
             'code': 1,
@@ -382,7 +382,7 @@ class Test(unittest.TestCase):
             'data': EachLike(EachLike({
                 "k1": 11,
                 'k2': 'aa',
-                'k3': Term('^\d{2}$',example=11)}))
+                'k3': Term('^\d{2}$', example=11)}))
         })
         result_1 = {
             'code': 0,
@@ -411,7 +411,7 @@ class Test(unittest.TestCase):
             'data': EachLike({
                 "k1": 11,
                 'k2': 'aa',
-                'k3': Term('^\d{2}$',example=11)}, minimum=3)
+                'k3': Term('^\d{2}$', example=11)}, minimum=3)
         })
         result_1 = {
             'code': 0,
@@ -432,7 +432,7 @@ class Test(unittest.TestCase):
             'data': EachLike({
                 "k1": 11,
                 'k2': 'aa',
-                'k3': Term('^\d{2}$',example=11)}, minimum=1)
+                'k3': Term('^\d{2}$', example=11)}, minimum=1)
         })
         result_1 = {
             'code': 0,
@@ -763,9 +763,23 @@ class Test(unittest.TestCase):
         # print('test_eachlike_base_10', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
+    # EachLike最小长度允许为空
+    def test_eachlike_base_11(self):
+        expected_format = EachLike(
+            {'k1': Matcher('v1')}
+        )
+        result_1 = [{'k1': 'v1'},{'k1': 'v2'}]
+        # # print(expected_format.generate())
+        mPactVerify = PactVerify(expected_format)
+        # print(expected_format.generate())
+
+        mPactVerify.verify(result_1)
+        print('test_eachlike_base_9', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
     # enum校验_1
     def test_enum_base_1(self):
-        expected_format = Enum([11,22])
+        expected_format = Enum([11, 22])
         result_1 = 13
 
         mPactVerify = PactVerify(expected_format)
@@ -775,8 +789,8 @@ class Test(unittest.TestCase):
 
     # enum校验_2
     def test_enum_base_2(self):
-        expected_format = Enum([{'k1':'v1'},{'k1':'v2'}])
-        result_1 = {'k1':'v2'}
+        expected_format = Enum([{'k1': 'v1'}, {'k1': 'v2'}])
+        result_1 = {'k1': 'v2'}
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
@@ -785,26 +799,7 @@ class Test(unittest.TestCase):
 
     # enum校验_3
     def test_enum_base_3(self):
-
         expected_format = Matcher({
-            'code':0,
-            'msg':'success',
-            'age': Enum([11,22,33])
-        })
-        result_1 = {
-            'code':0,
-            'msg':'success',
-            'age': 11
-        }
-        #print(expected_format.generate())
-        mPactVerify = PactVerify(expected_format)
-        mPactVerify.verify(result_1)
-        #print('test_enum_base_1', mPactVerify.verify_info)
-        assert mPactVerify.verify_result == True
-
-    # enum校验_4
-    def test_enum_base_4(self):
-        expected_format = Like({
             'code': 0,
             'msg': 'success',
             'age': Enum([11, 22, 33])
@@ -814,10 +809,28 @@ class Test(unittest.TestCase):
             'msg': 'success',
             'age': 11
         }
-        #print(expected_format.generate())
+        # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        #print('test_enum_base_1', mPactVerify.verify_info)
+        # print('test_enum_base_1', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # enum校验_4
+    def test_enum_base_4(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'age': Enum([11, 22])
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success',
+            'age': 11
+        }
+        # print(expected_format.generate())
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        # print('test_enum_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # enum校验_5
@@ -825,17 +838,18 @@ class Test(unittest.TestCase):
         expected_format = Like({
             'code': 0,
             'msg': 'success',
-            'data': EachLike(Enum([11,22]))
+            'data': EachLike({'name': Enum(['liuhui', 'xiaoli'])})
         })
         result_1 = {
             'code': 0,
             'msg': 'success',
-            'data': [11,22,33]
+            'data': [{'name': 'liuhui'}]
         }
-        print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_1', mPactVerify.verify_info)
+        # print('test_enum_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
+
+
 if __name__ == '__main__':
     unittest.main()

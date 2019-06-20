@@ -1,7 +1,8 @@
 """Classes for defining request and response data that is variable."""
-import six, json, re
+import six, re
 
 
+# 值匹配
 class Matcher(object):
     """Base class for defining complex contract expectations."""
     json_class_key = 'json_class'
@@ -41,6 +42,7 @@ class Matcher(object):
         return matcher_dict
 
 
+# 数组值类型匹配
 class EachLike(Matcher):
     """
     Expect the data to be a list of similar objects.
@@ -69,7 +71,7 @@ class EachLike(Matcher):
 
         # EachLike中只允许嵌套基础数据类型和EachLike类型
         valid_types = (
-            type(None), list, dict, int, float, six.string_types, EachLike,Enum)
+            type(None), list, dict, int, float, six.string_types, EachLike)
 
         assert isinstance(matcher, valid_types), (
             "matcher must be one of '{}', got '{}'".format(
@@ -89,6 +91,7 @@ class EachLike(Matcher):
             'min': self.minimum}
 
 
+# 值类型匹配
 class Like(Matcher):
     """
     Expect the type of the value to be the same as matcher.
@@ -132,6 +135,7 @@ class Like(Matcher):
             'contents': from_term(self.matcher)}
 
 
+# 正则匹配
 class Term(Matcher):
     """
     Expect the response to match a specified regular expression.
@@ -186,6 +190,7 @@ class Term(Matcher):
         assert (m is not None), ('Term example regex test fail')
 
 
+# 枚举匹配
 class Enum(Matcher):
     """Base class for defining complex contract expectations."""
 
@@ -241,10 +246,15 @@ class PactVerify:
         self.matcher = matcher
         self.generate_dict = matcher.generate()
         self.verify_result = True
+        # key不匹配错误
         self.key_not_macth_error = []
+        # 值不匹配错误
         self.value_not_match_error = []
+        # 类型不匹配错误
         self.type_not_match_error = []
+        # 数组长度不匹配错误
         self.list_len_not_match_error = []
+        # 枚举不匹配错误
         self.enum_not_match_error = []
 
     def verify(self, actual_data, generate_dict=None):
