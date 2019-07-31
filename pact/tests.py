@@ -1,7 +1,7 @@
 # coding:utf-8
 
 import unittest
-from .matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
+from pact.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
 
 class Test(unittest.TestCase):
@@ -14,14 +14,14 @@ class Test(unittest.TestCase):
         })
         result_1 = {
             'code': 0,
-            'msg': 'success',
+            'msg': 'success11',
             'data': {'name': 'Jonas', 'age': 10, 'phone': 'bbb'},
             'age_2': 'aaa'
         }
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # # print('test_matcher_base_1', mPactVerify.verify_info)
+        print('test_matcher_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # Macher基础基础配置2-校验不通过
@@ -38,7 +38,7 @@ class Test(unittest.TestCase):
         }]
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        # # print('test_matcher_base_2', mPactVerify.verify_info)
+        ##print('test_matcher_base_2', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Macher配置
@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        # # print('test_matcher_base_3', mPactVerify.verify_info)
+        ## print('test_matcher_base_3', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Macher配置
@@ -62,7 +62,7 @@ class Test(unittest.TestCase):
         result_2 = 'aa'
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        # # print('test_matcher_base_4', mPactVerify.verify_info)
+        ## print('test_matcher_base_4', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Macher配置
@@ -82,7 +82,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        # # print('test_matcher_base_5', mPactVerify.verify_info)
+        ## print('test_matcher_base_5', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like基础配置-校验通过
@@ -103,11 +103,11 @@ class Test(unittest.TestCase):
             'valid': False,
             'info': None,
             'info_1': [1112],
-            'info_2': {}
+            'info_2': []
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # # print('test_like_base_1', mPactVerify.verify_info)
+        ##print('test_like_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # Like配置-校验不通过
@@ -134,7 +134,7 @@ class Test(unittest.TestCase):
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # # print('test_like_base_2', mPactVerify.verify_info)
+        # print('test_like_base_2', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like-Term嵌套-校验不通过
@@ -155,12 +155,12 @@ class Test(unittest.TestCase):
             'valid': False,
             'info': None,
             'info_1': [1112],
-            'info_2': '1a1'
+            'info_2': 1
         }
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # # print('test_like_base_3', mPactVerify.verify_info)
+        ##print('test_like_base_3', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like配置,目标数据格式不符合
@@ -178,7 +178,7 @@ class Test(unittest.TestCase):
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # # print('test_like_base_4', mPactVerify.verify_info)
+        ## print('test_like_base_4', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like-Like嵌套
@@ -211,7 +211,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # # print('test_like_base_5', mPactVerify.verify_info)
+        print('test_like_base_5', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like-Like嵌套
@@ -271,7 +271,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # # print('test_like_base_6', mPactVerify.verify_info)
+        print('test_like_base_6', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # Like-Matcher嵌套
@@ -304,17 +304,17 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_like_base_7', mPactVerify.verify_info)
+        ## print('test_like_base_7', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Term基础配置
     def test_term_base_1(self):
         expected_format = Term(r'^\d{2}$', 11)
-        result_1 = 11
+        result_1 = 112
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_term_base_1', mPactVerify.verify_info)
+        ## print('test_term_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # EachLike单层配置
@@ -342,7 +342,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_1', mPactVerify.verify_info)
+        ##print('test_eachlike_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # EachLike多层嵌套
@@ -400,7 +400,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_2', mPactVerify.verify_info)
+        print('test_eachlike_base_2', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # EachLike-len测试
@@ -421,7 +421,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_4', mPactVerify.verify_info)
+        print('test_eachlike_base_4', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # EachLike-len测试
@@ -445,7 +445,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_5', mPactVerify.verify_info)
+        print('test_eachlike_base_5', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # EachLike测试
@@ -463,7 +463,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_6', mPactVerify.verify_info)
+        print('test_eachlike_base_6', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     def test_eachlike_base_7(self):
@@ -476,7 +476,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_7', mPactVerify.verify_info)
+        #print('test_eachlike_base_7', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     def test_eachlike_base_8(self):
@@ -489,7 +489,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_8', mPactVerify.verify_info)
+        print('test_eachlike_base_8', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # EachLike最小长度允许为空
@@ -503,7 +503,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_9', mPactVerify.verify_info)
+        print('test_eachlike_base_9', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # EachLike最小长度允许为空
@@ -760,7 +760,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_10', mPactVerify.verify_info)
+        print('test_eachlike_base_10', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # EachLike最小长度允许为空
@@ -768,14 +768,14 @@ class Test(unittest.TestCase):
         expected_format = EachLike(
             {'k1': Matcher('v1')}
         )
-        result_1 = [{'k1': 'v1'},{'k1': 'v2'}]
+        result_1 = [{'k1': 'v1'}, {'k1': 'v2'}]
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
         print('test_eachlike_base_9', mPactVerify.verify_info)
-        assert mPactVerify.verify_result == True
+        assert mPactVerify.verify_result == False
 
     # enum校验_1
     def test_enum_base_1(self):
@@ -784,7 +784,7 @@ class Test(unittest.TestCase):
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # enum校验_2
@@ -794,7 +794,7 @@ class Test(unittest.TestCase):
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # enum校验_3
@@ -812,7 +812,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # enum校验_4
@@ -830,7 +830,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # enum校验_5
@@ -843,13 +843,21 @@ class Test(unittest.TestCase):
         result_1 = {
             'code': 0,
             'msg': 'success',
-            'data': [{'name': 'liuhui'}]
+            'data': {'name': 'liuhui'}
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
-
+    #
+    def test_1111(self):
+        expect_format = Matcher({'k1': 'v1'})
+        # 实际数据
+        actual_data = {'k1': 'v2'}
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(actual_data)
+        print('test_1111', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
 if __name__ == '__main__':
     unittest.main()

@@ -89,16 +89,21 @@ mPactVerify.verify(actual_data)
 # 校验结果  False
 print(mPactVerify.verify_result)
 ''' 校验错误信息
+错误信息输出actual_key路径：root.data.0.name形式
+root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 {
-	'key_not_macth_error': ['name'],     # key不匹配错误信息
-	'value_not_match_error': [],         # 值不匹配错误信息
-	'type_not_match_error': [{           # 类型不匹配错误信息
+	'key_not_macth_error': ['root.data.1.name'],
+	'value_not_match_error': [],
+	'type_not_match_error': [{
+			'actual_key': 'root.data.0.type_id',
 			'actual_vaule': '249',
 			'expect_type': 'int'
 		}
 	],
-	'list_len_not_match_error': []       # 数组长度不匹配错误信息
+	'list_len_not_match_error': [],
+	'enum_not_match_error': []
 }
+
 '''
 print(mPactVerify.verify_info)
 ```
