@@ -4,21 +4,7 @@ import six, re
 
 '''
 新增特性：
-1. 错误信息输出actual_key路径：root.data.0.name形式
-root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
-实例：
-{
-	'key_not_macth_error': ['root.data.0.1.k3', 'root.data.1.0.k1', 'root.data.1.0.k3'],
-	'value_not_match_error': [{
-			'actual_key': 'root.data.0.0.k3',
-			'actual_value': 123,
-			'expect_regex': '^\\d{2}$'
-		}
-	],
-	'type_not_match_error': [],
-	'list_len_not_match_error': [],
-	'enum_not_match_error': []
-}
+1. Enum类新增iterate_list参数，iterate_list为true时会解析目标数组的每个元素是否符合Enum规则
 '''
 
 
@@ -87,8 +73,6 @@ class EachLike(Matcher):
         """
         self.matcher = matcher
         assert minimum >= 0, 'Minimum must be greater than or equal to 1'
-        self.minimum = minimum
-
         # EachLike中只允许嵌套基础数据类型和EachLike类型
         valid_types = (
             type(None), list, dict, int, float, six.string_types, EachLike)
@@ -96,6 +80,7 @@ class EachLike(Matcher):
         assert isinstance(matcher, valid_types), (
             "matcher must be one of '{}', got '{}'".format(
                 valid_types, type(matcher)))
+        self.minimum = minimum
 
     def generate(self):
         """
@@ -108,7 +93,8 @@ class EachLike(Matcher):
         return {
             'json_class': 'EachLike',
             'contents': from_term(self.matcher),
-            'min': self.minimum}
+            'min': self.minimum
+        }
 
 
 # 值类型匹配
@@ -122,7 +108,7 @@ class Like(Matcher):
     service, instead of a randomly generated value.
     """
 
-    def __init__(self, matcher):
+    def __init__(self, matcher, nullable=False, dict_emptiable=False):
         """
         Create a new SomethingLike.
 
@@ -141,6 +127,12 @@ class Like(Matcher):
                 valid_types, type(matcher)))
 
         self.matcher = matcher
+        self.nullable = nullable
+        # matcher类型为dict时，dict_emptiable参数才有效
+        if type(self.matcher) == dict:
+            self.dict_emptiable = dict_emptiable
+        else:
+            self.dict_emptiable = False
 
     def generate(self):
         """
@@ -152,7 +144,10 @@ class Like(Matcher):
         """
         return {
             'json_class': 'Like',
-            'contents': from_term(self.matcher)}
+            'contents': from_term(self.matcher),
+            'nullable': self.nullable,
+            'dict_emptiable': self.dict_emptiable
+        }
 
 
 # 正则匹配
@@ -214,9 +209,7 @@ class Term(Matcher):
 class Enum(Matcher):
     """Base class for defining complex contract expectations."""
 
-    def __init__(self, matcher):
-        self.matcher = matcher
-
+    def __init__(self, matcher, iterate_list=False):
         # 枚举类型参数只能为列表
         valid_types = (
             list)
@@ -224,6 +217,8 @@ class Enum(Matcher):
         assert isinstance(matcher, valid_types), (
             "matcher must be one of '{}', got '{}'".format(
                 valid_types, type(matcher)))
+        self.matcher = matcher
+        self.iterate_list = iterate_list
 
     def generate(self):
         """
@@ -233,7 +228,8 @@ class Enum(Matcher):
         """
         return {
             'json_class': 'Enum',
-            'contents': from_term(self.matcher)
+            'contents': from_term(self.matcher),
+            'iterate_list': self.iterate_list
         }
 
 
@@ -280,6 +276,10 @@ class PactVerify:
     def verify(self, actual_data, target_key='root', generate_dict=None):
         json_class_key, contents_key = 'json_class', 'contents'
 
+        nullable_key, dict_emptiable_key = 'nullable', 'dict_emptiable'
+
+        iterate_list_key = 'iterate_list'
+
         if generate_dict is None:
             generate_dict = self.generate_dict
         # 非matcher校验,严格校验
@@ -305,25 +305,28 @@ class PactVerify:
                                     self._check_param_value(target_k, actual_data.get(k), v)
                     # Like校验字段值类型一致
             elif json_class == 'Like':
+                nullable, dict_emptiable = generate_dict.get(nullable_key), generate_dict.get(dict_emptiable_key)
+
                 # Like(11)形式
                 if type(contents) != dict:
-                    self._check_param_type(target_key, actual_data, type(contents))
+                    self._check_param_type(target_key, actual_data, type(contents), nullable=nullable)
                 else:
                     if type(actual_data) == dict:
-                        for k, v in contents.items():
-                            # contents非dict类型;contents为dict类型,没有嵌套matcher_json
-                            target_k = '{}.{}'.format(target_key, k)
-                            if type(v) == dict and self._is_matcher_json(v):
-                                if self._check_param_type(target_k, actual_data, dict):
-                                    # 嵌套term对象,actual_data需包含k
+                        if not self._check_dict_emptiable(actual_data, dict_emptiable):
+                            for k, v in contents.items():
+                                # contents非dict类型;contents为dict类型,没有嵌套matcher_json
+                                target_k = '{}.{}'.format(target_key, k)
+                                if type(v) == dict and self._is_matcher_json(v):
+                                    if self._check_param_type(target_k, actual_data, dict, nullable=nullable):
+                                        # 嵌套term对象,actual_data需包含k
+                                        if self._check_param_key(target_k, actual_data, k):
+                                            target_data, target_generate_dict = actual_data.get(k), v
+                                            self.verify(target_data, target_k, target_generate_dict)
+                                else:
                                     if self._check_param_key(target_k, actual_data, k):
-                                        target_data, target_generate_dict = actual_data.get(k), v
-                                        self.verify(target_data, target_k, target_generate_dict)
-                            else:
-                                if self._check_param_key(target_k, actual_data, k):
-                                    self._check_param_type(target_k, actual_data.get(k), type(v))
+                                        self._check_param_type(target_k, actual_data.get(k), type(v), nullable=nullable)
                     else:
-                        self._check_param_type(target_key, actual_data, dict)
+                        self._check_param_type(target_key, actual_data, dict, nullable=nullable)
 
             # EachLike外层校验list类型
             elif json_class == 'EachLike':
@@ -370,8 +373,14 @@ class PactVerify:
                     self._check_param_value(target_key, actual_data, regex_str, regex_mode=True)
 
             elif json_class == 'Enum':
-                expect_enum = contents
-                self._check_enum_element(target_key, actual_data, expect_enum)
+                expect_enum, iterate_list = contents, generate_dict.get(iterate_list_key)
+                # 遍历目标数组中的元素
+                if iterate_list and type(actual_data) == list:
+                    for i, v in enumerate(actual_data):
+                        target_k = '{}.{}'.format(target_key, i)
+                        self._check_enum_element(target_k, v, expect_enum)
+                else:
+                    self._check_enum_element(target_key, actual_data, expect_enum)
 
     # 正常契约校验,严格匹配
     def _normal_pact_verify(self, target_key, actual_data, generate_dict):
@@ -392,12 +401,29 @@ class PactVerify:
         except AttributeError:
             self._update_type_error(target_key, actual_data, dict)
 
+    # nullable检查
+    def _check_nullable(self, target_data, nullable):
+        result = False
+        # nullable为true时，target_data为None默认通过，不再进行下一步检查
+        if nullable and target_data is None:
+            result = True
+        return result
+
+    # emptiable
+    def _check_dict_emptiable(self, target_data, emptiable):
+        result = False
+        # emptiable为true是，target_data为dict类型切为空是通过，不再进行下一步检查
+        if emptiable and type(target_data) == dict and len(target_data) == 0:
+            result = True
+        return result
+
     # 校验参数类型
-    def _check_param_type(self, target_key, target_data, expect_type):
+    def _check_param_type(self, target_key, target_data, expect_type, nullable=False):
         check_result = True
-        if not isinstance(target_data, expect_type):
-            check_result = False
-            self._update_type_error(target_key, target_data, expect_type)
+        if not self._check_nullable(target_data, nullable):
+            if not isinstance(target_data, expect_type):
+                check_result = False
+                self._update_type_error(target_key, target_data, expect_type)
         return check_result
 
     # 校验参数key

@@ -21,7 +21,7 @@ class Test(unittest.TestCase):
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_matcher_base_1', mPactVerify.verify_info)
+        ## print('test_matcher_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # Macher基础基础配置2-校验不通过
@@ -82,7 +82,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        ## print('test_matcher_base_5', mPactVerify.verify_info)
+        # print('test_matcher_base_5', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like基础配置-校验通过
@@ -107,7 +107,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        ##print('test_like_base_1', mPactVerify.verify_info)
+        print('test_like_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # Like配置-校验不通过
@@ -134,7 +134,7 @@ class Test(unittest.TestCase):
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_like_base_2', mPactVerify.verify_info)
+        print('test_like_base_2', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like-Term嵌套-校验不通过
@@ -160,7 +160,7 @@ class Test(unittest.TestCase):
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        ##print('test_like_base_3', mPactVerify.verify_info)
+        print('test_like_base_3', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like配置,目标数据格式不符合
@@ -178,7 +178,7 @@ class Test(unittest.TestCase):
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        ## print('test_like_base_4', mPactVerify.verify_info)
+        print('test_like_base_4', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Like-Like嵌套
@@ -304,7 +304,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        ## print('test_like_base_7', mPactVerify.verify_info)
+        print('test_like_base_7', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     # Term基础配置
@@ -476,7 +476,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        #print('test_eachlike_base_7', mPactVerify.verify_info)
+        # print('test_eachlike_base_7', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
     def test_eachlike_base_8(self):
@@ -790,7 +790,7 @@ class Test(unittest.TestCase):
     # enum校验_2
     def test_enum_base_2(self):
         expected_format = Enum([{'k1': 'v1'}, {'k1': 'v2'}])
-        result_1 = {'k1': 'v2'}
+        result_1 = {'k2': 'v2'}
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
@@ -850,14 +850,181 @@ class Test(unittest.TestCase):
         print('test_enum_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
-    #
-    def test_1111(self):
-        expect_format = Matcher({'k1': 'v1'})
+    # enum校验_6
+    def test_enum_base_6(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'data': Enum([11,22,33],iterate_list=True)
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success',
+            'data': [11,12]
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_base_6', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # enum校验_7
+    def test_enum_base_7(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            "reasonList": Enum([{
+                "key": "InstallAssurePolicy",
+                "name": "保装车",
+                "reason": "第1项:品质不支持;第2项:品质不支持"
+            }, {
+                "key": "QualityAssurePolicy",
+                "name": "商家质保",
+                "reason": "null;第2项:质保1年:品质不支持;第3项:质保1年:品质不支持"
+            }, {
+                "key": "ReturnAndChangePolicy",
+                "name": "包退货",
+                "reason": "null;第2项:7天包退货:品质不支持;第3项:7天包退货:品质不支持;第4项:7天包退货:品质不支持"
+            }, {
+                "key": "CassQualityAssurePolicy",
+                "name": "开思质保",
+                "reason": "质保六个月第1项：品质不支持;质保六个月第2项：标准名称不支持;质保六个月第3项：品质不支持"
+            }, {
+                "key": "CompensationPolicy",
+                "name": "假一罚N",
+                "reason": "暂无配置"
+            }],iterate_list=True)
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success',
+             "reasonList": [{
+                    "key": "InstallAssurePolicy",
+                    "name": "保装车",
+                    "reason": "第1项:品质不支持;第2项:品质不支持"
+                }, {
+                    "key": "QualityAssurePolicy",
+                    "name": "商家质保",
+                    "reason": "null;第2项:质保1年:品质不支持;第3项:质保1年:品质不支持"
+                }, {
+                    "key": "ReturnAndChangePolicy",
+                    "name": "包退货",
+                    "reason": "null;第2项:7天包退货:品质不支持;第3项:7天包退货:品质不支持;第4项:7天包退货:品质不支持"
+                }, {
+                    "key": "CassQualityAssurePolicy",
+                    "name": "开思质保",
+                    "reason": "质保六个月第1项：品质不支持;质保六个月第2项：标准名称不支持;质保六个月第3项：品质不支持"
+                }, {
+                    "key": "CompensationPolicy11",
+                    "name": "假一罚N",
+                    "reason": "暂无配置"
+                }
+            ]
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_base_7', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # like_nulable校验
+    def test_like_nulable_1(self):
+        expect_format = Like({
+            'k1': 'v1'
+        }, nullable=True)
         # 实际数据
-        actual_data = {'k1': 'v2'}
+        actual_data = {'k1': None}
         mPactVerify = PactVerify(expect_format)
         mPactVerify.verify(actual_data)
-        print('test_1111', mPactVerify.verify_info)
+        print('test_like_nulable_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
+
+    # like_nulable校验
+    def test_like_nulable_2(self):
+        expect_format = Like(11, nullable=True)
+        actual_data = None
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(actual_data)
+        print('test_like_nulable_2', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # like_nulable校验
+    def test_like_nulable_3(self):
+        expect_format = Like({
+            'code': 0,
+            'data': Like({
+                'k1': Like('v1', nullable=True),
+                'k2': 'v2'
+            }, nullable=False)
+        }, nullable=False)
+        actual_data = {
+            'code': 0,
+            'data': {
+                'k1': None,
+                'k2': None
+            }
+        }
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(actual_data)
+        print('test_like_nulable_3', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # like_dict_emptiable校验
+    def test_dict_emptiable_1(self):
+        expect_format = Like({
+            'code': 0,
+            'data': Like({
+                'k1': 'v1',
+                'info': Like({
+                    'name': 'li'
+                })
+            }, dict_emptiable=True)
+        })
+        actual_data = {
+            'code': 0,
+            'data': {}
+        }
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(actual_data)
+        print('test_dict_emptiable_1', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # like_dict_emptiable校验
+    def test_dict_emptiable_2(self):
+        expect_format = Like({
+            'code': 0,
+            'data': Like({
+                'k1': 'v1',
+                'info': Like({
+                    'name': 'li'
+                }, dict_emptiable=True)
+            }, dict_emptiable=True)
+        })
+        actual_data = {
+            'code': 0,
+            'data': {
+                'k1': 'v1',
+                'info': {}
+            }
+        }
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(actual_data)
+        print('test_dict_emptiable_2', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # like_dict_emptiable校验
+    def test_dict_emptiable_3(self):
+        expect_format = Like({
+            'code': 0,
+            'data': Like(11, dict_emptiable=True)
+        })
+        actual_data = {
+            'code': 0,
+            'data': {}
+        }
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(actual_data)
+        print('test_dict_emptiable_3', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+
 if __name__ == '__main__':
     unittest.main()
