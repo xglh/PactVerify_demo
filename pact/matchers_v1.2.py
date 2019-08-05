@@ -3,7 +3,7 @@
 import six, re
 
 '''
-新增特性：
+v1.2版本新增特性：
 1. Like新增nullable属性，nullable为true时，目标值为null时校验通过
 2. Like新增dict_emptiable属性，dict_emptiable为true时，目标值为{}时校验通过
 '''

@@ -3,7 +3,7 @@
 import six, re
 
 '''
-新增特性：
+v1.1版本新增特性：
 1. 错误信息输出actual_key路径：root.data.0.name形式
 root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 实例：

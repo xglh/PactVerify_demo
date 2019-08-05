@@ -44,7 +44,7 @@
 >1.实际返回数据必须包含契约中定义的字段,可以多字段,但不能少  
 >2.字段值可以值相等或类型相等
 
-目标：对返回数据进行全量字段名-值校验
+<font color="red">目标：对返回数据进行全量(字段名-值/类型)校验</font>
 
 -------------
 
@@ -92,15 +92,20 @@ print(mPactVerify.verify_result)
 错误信息输出actual_key路径：root.data.0.name形式
 root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 {
+    # dict类型key不匹配错误
 	'key_not_macth_error': ['root.data.1.name'],
+	# 值不匹配错误
 	'value_not_match_error': [],
+	# 类型不匹配错误
 	'type_not_match_error': [{
 			'actual_key': 'root.data.0.type_id',
 			'actual_vaule': '249',
 			'expect_type': 'int'
 		}
 	],
+	# 数组长度不匹配错误
 	'list_len_not_match_error': [],
+	# 元祖不匹配错误
 	'enum_not_match_error': []
 }
 
@@ -131,9 +136,9 @@ expect_format_2 = Like(1.0)
 expect_format_3 = Like('11')
 # 预期返回数据actual为dict结构，actual['k1'] == type('v1')
 expect_format_4 = Like({'k1':'v1'})
-# nullable为true时允许返回null，预期null和actual为dict结构，actual['k1'] == type('v1') or null形式
+# nullable为true时允许返回null，预期null和(actual为dict结构，actual['k1'] == type('v1') or null)形式
 expect_format_5 = Like({'k1': 'v1'},nullable=True)
-# dict_emptiable为true时，允许返回{}，预期{}和actual为dict结构，actual['k1'] == type('v1')形式
+# dict_emptiable为true时，允许返回{}，预期{}和(actual为dict结构，actual['k1'] == type('v1'))形式
 expect_format_6 = Like({'k1': 'v1'},dict_emptiable=True)
 ```
 3. EachLike类  
@@ -202,7 +207,31 @@ expect_format = EachLike(EachLike({
 }))
 
 ```
-4.3 Like-Term嵌套
+4.3 {[]}格式
+```python
+actual_data = {
+    'code': 0,
+    'msg': 'success',
+    'data': [{
+        "id": 1,
+        "name": 'lili'
+    },{
+        "id": 2,
+        "name": 'lilei'
+    }]
+}
+
+expect_format = Like({
+    'code': 0,
+    'msg': 'success',
+    'data': EachLike({
+        "id": 1,
+        "name": 'lili'
+    })
+})
+
+```
+4.4 Like-Term嵌套
 ```python
 expect_format = Like({
     'code': 0,
@@ -213,7 +242,7 @@ expect_format = Like({
     })
 })
 ```
-4.4 Like-Term嵌套
+4.5 Like-Matcher嵌套
 ```python
 expect_format = Like({
     # name字段值类型匹配
@@ -222,6 +251,7 @@ expect_format = Like({
     'age': Matcher(12),
 })
 ```
+<font color="red">说明：匹配规则多层规则嵌套时，内层规则优先生效</font>
 
 -------------
 
@@ -331,4 +361,61 @@ print(mPactVerify.verify_result)
    ]
 }'''
 print(mPactVerify.verify_info)
+```
+-------------
+
+## 六.配合unittest+requests使用
+```python
+mport unittest, requests, HtmlTestRunner, os
+from pact.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
+
+
+class PactTest(unittest.TestCase):
+
+    def test_config_2(self):
+        url = 'http://127.0.0.1:8080/configV2'
+        config_rsp = requests.get(url)
+        config_contract_format = Matcher({
+            "msg": "success",
+            "code": 200,
+            'name': Enum(['lili', 'xiaohei']),
+            'addr': Term(r'深圳*', example='深圳宝安'),
+            "data": EachLike({
+                "type_id": 249,
+                "name": "王者荣耀",
+                "order_index": 1,
+                "status": 1,
+                "subtitle": " ",
+                "game_name": "王者荣耀"
+            }),
+            'data_2':
+                EachLike({
+                    "type_id": 249,
+                    "name": "王者荣耀",
+                    "order_index": 1,
+                    "status": 1,
+                    "subtitle": " ",
+                    "game_name": "王者荣耀"
+                }, minimum=1)
+        })
+
+        mPactVerify = PactVerify(config_contract_format)
+
+        try:
+            actual_rsp_json = config_rsp.json()
+            mPactVerify.verify(actual_rsp_json)
+            assert mPactVerify.verify_result == True
+        except Exception:
+            # 自定义错误信息,输出到HTMLTestRunner中
+            err_msg = 'PactVerify_fail,verify_result:{},verify_info:{}'.format(mPactVerify.verify_result,
+                                                                               mPactVerify.verify_info)
+            self.fail(err_msg)
+
+
+if __name__ == '__main__':
+    current_path = os.path.abspath(__file__)
+    current_dir = os.path.abspath(os.path.dirname(current_path) + os.path.sep + ".")
+    suite = unittest.defaultTestLoader.discover(current_dir, pattern="test_*.py")
+    runner = HtmlTestRunner.HTMLTestRunner(combine_reports=True, report_name="MyReport", add_timestamp=False)
+    runner.run(suite)
 ```
