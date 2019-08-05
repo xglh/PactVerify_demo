@@ -2,3 +2,4 @@
 .idea/
 *.xml
 reports/
+__pycache__/
