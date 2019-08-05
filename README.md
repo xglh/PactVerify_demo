@@ -42,14 +42,14 @@
 ## 二.校验原则
 
 >1.实际返回数据必须包含契约中定义的字段,可以多字段,但不能少  
->2.字段值可以值相等或类型相等
+>2.字段值可以值相等或类型相等  
 
-<font color="red">目标：对返回数据进行全量(字段名-值/类型)校验</font>
+<span style="color: red">目标：对返回数据进行全量(字段名-值/类型)校验</span>  
 
 -------------
 
 ## 三.基本使用
-示例：
+### 示例：
 ```python
 from pact.matchers import Matcher, Like, EachLike, Term, PactVerify
 
@@ -113,8 +113,8 @@ root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 print(mPactVerify.verify_info)
 ```
 
-1. Matcher类  
-校验规则：值匹配
+### 1. Matcher类  
+#### 校验规则：值匹配
 ```python
 # 预期11
 expect_format_1 = Matcher(11)
@@ -125,8 +125,8 @@ expect_format_3 = Matcher('11')
 # 预期返回数据actual为dict结构，actual['k1'] == 'v1'
 expect_format_4 = Matcher({'k1':'v1'})
 ```  
-2. Like类  
-校验规则：类型匹配
+### 2. Like类  
+#### 校验规则：类型匹配
 ```python
 # 预期type(11)
 expect_format_1 = Like(11)
@@ -141,8 +141,8 @@ expect_format_5 = Like({'k1': 'v1'},nullable=True)
 # dict_emptiable为true时，允许返回{}，预期{}和(actual为dict结构，actual['k1'] == type('v1'))形式
 expect_format_6 = Like({'k1': 'v1'},dict_emptiable=True)
 ```
-3. EachLike类  
-校验规则：数组类型匹配
+### 3. EachLike类  
+#### 校验规则：数组类型匹配
 ```python
 # 预期[type(11)]
 expect_format_1 = EachLike(11)
@@ -156,15 +156,15 @@ expect_format_4 = EachLike({'k1': 'v1'})
 expect_format_4 = EachLike({'k1': 'v1'}, minimum=0)
 ```
 
-4. Term类  
-校验规则：正则匹配
+### 4. Term类  
+#### 校验规则：正则匹配
 ```python
 # 预期r'^\d{2}$'，并且type(actual_data) == type(example)，example也来测试正则表达式
 expect_format_1 = Term(r'^\d{2}$', example=111)
 ```
 
-5. Enum类  
-校验规则：枚举匹配
+### 5. Enum类  
+#### 校验规则：枚举匹配
 ```python
 # 预期11或22
 expected_format_1 = Enum([11, 22])
@@ -175,7 +175,7 @@ expected_format_2 = Enum([11, 22],iterate_list=True)
 -------------
 
 ## 四.复杂规则匹配
-4.1 {{}}格式
+### 4.1 {{}}格式
 ```python
 actual_data = {
     'code': 0,
@@ -194,7 +194,7 @@ expect_format = Like({
     })
 })
 ```
-4.2 [[]]格式
+### 4.2 [[]]格式
 ```python
 actual_data = [[{
     "id": 1,
@@ -207,7 +207,7 @@ expect_format = EachLike(EachLike({
 }))
 
 ```
-4.3 {[]}格式
+### 4.3 {[]}格式
 ```python
 actual_data = {
     'code': 0,
@@ -231,7 +231,7 @@ expect_format = Like({
 })
 
 ```
-4.4 Like-Term嵌套
+### 4.4 Like-Term嵌套
 ```python
 expect_format = Like({
     'code': 0,
@@ -242,7 +242,7 @@ expect_format = Like({
     })
 })
 ```
-4.5 Like-Matcher嵌套
+### 4.5 Like-Matcher嵌套
 ```python
 expect_format = Like({
     # name字段值类型匹配
@@ -251,7 +251,10 @@ expect_format = Like({
     'age': Matcher(12),
 })
 ```
-<font color="red">说明：匹配规则多层规则嵌套时，内层规则优先生效</font>
+#### 说明：
+>1. Matcher，Like和EachLike类可以不限层级嵌套，Term和Enum则不能嵌套其他规则
+>2. 匹配规则多层规则嵌套时，内层规则优先生效
+
 
 -------------
 
@@ -419,3 +422,6 @@ if __name__ == '__main__':
     runner = HtmlTestRunner.HTMLTestRunner(combine_reports=True, report_name="MyReport", add_timestamp=False)
     runner.run(suite)
 ```
+## 七.优点总结  
+><span style="color: red">1.显式定义接口断言格式，接口断言更加直观</span>  
+><span style="color: red">2.可复用接口实际响应数据来定义契约</span> 
