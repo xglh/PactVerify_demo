@@ -11,17 +11,18 @@ class Test(unittest.TestCase):
         expected_format = Matcher({
             'code': 0,
             'msg': 'success',
+            'data': Matcher({'name': 'Jonas', 'age': 10, 'phone': 'bbb'}, jsonloads=True)
         })
         result_1 = {
             'code': 0,
-            'msg': 'success11',
-            'data': {'name': 'Jonas', 'age': 10, 'phone': 'bbb'},
+            'msg': 'success',
+            'data': None,
             'age_2': 'aaa'
         }
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        ## print('test_matcher_base_1', mPactVerify.verify_info)
+        print('test_matcher_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # Macher基础基础配置2-校验不通过
@@ -307,6 +308,31 @@ class Test(unittest.TestCase):
         print('test_like_base_7', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
+    # Like基础配置-校验通过
+    def test_like_jsonloads_1(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'price': 1.0,
+            'valid': True,
+            'info': None,
+            'info_1': [11],
+            'info_2': Like({'k1': 'v1'}, jsonloads=True)
+        })
+        result_1 = {
+            'code': 1,
+            'msg': 'haha',
+            'price': 2.0,
+            'valid': False,
+            'info': None,
+            'info_1': [1112],
+            'info_2': "{\"k1\": 11}"
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_like_jsonloads_1', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
     # Term基础配置
     def test_term_base_1(self):
         expected_format = Term(r'^\d{2}$', 11)
@@ -314,7 +340,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        ## print('test_term_base_1', mPactVerify.verify_info)
+        print('test_term_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # EachLike单层配置
@@ -776,8 +802,26 @@ class Test(unittest.TestCase):
         mPactVerify.verify(result_1)
         print('test_eachlike_base_9', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
+        # EachLike单层配置
 
-    # enum校验_1
+    def test_eachlike_jsonloads_1(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'data': EachLike({
+                'k1': 11,
+                'k2': 'aa',
+                'k3': 'haah'}, jsonloads=True)
+        }, jsonloads=True)
+        result_1 = '''{\"code\":0,\"msg\":\"success\",\"data\":"[{\"k1\":11,\"k2\":\"aa\",\"k3\":true}]"}'''
+        # # print(expected_format.generate())
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_eachlike_jsonloads_1', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == False
+
+        # enum校验_1
+
     def test_enum_base_1(self):
         expected_format = Enum([11, 22])
         result_1 = 13
@@ -855,12 +899,12 @@ class Test(unittest.TestCase):
         expected_format = Like({
             'code': 0,
             'msg': 'success',
-            'data': Enum([11,22,33],iterate_list=True)
+            'data': Enum([11, 22, 33], iterate_list=True)
         })
         result_1 = {
             'code': 0,
             'msg': 'success',
-            'data': [11,12]
+            'data': [11, 12]
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
@@ -892,37 +936,54 @@ class Test(unittest.TestCase):
                 "key": "CompensationPolicy",
                 "name": "假一罚N",
                 "reason": "暂无配置"
-            }],iterate_list=True)
+            }], iterate_list=True)
         })
         result_1 = {
             'code': 0,
             'msg': 'success',
-             "reasonList": [{
-                    "key": "InstallAssurePolicy",
-                    "name": "保装车",
-                    "reason": "第1项:品质不支持;第2项:品质不支持"
-                }, {
-                    "key": "QualityAssurePolicy",
-                    "name": "商家质保",
-                    "reason": "null;第2项:质保1年:品质不支持;第3项:质保1年:品质不支持"
-                }, {
-                    "key": "ReturnAndChangePolicy",
-                    "name": "包退货",
-                    "reason": "null;第2项:7天包退货:品质不支持;第3项:7天包退货:品质不支持;第4项:7天包退货:品质不支持"
-                }, {
-                    "key": "CassQualityAssurePolicy",
-                    "name": "开思质保",
-                    "reason": "质保六个月第1项：品质不支持;质保六个月第2项：标准名称不支持;质保六个月第3项：品质不支持"
-                }, {
-                    "key": "CompensationPolicy11",
-                    "name": "假一罚N",
-                    "reason": "暂无配置"
-                }
+            "reasonList": [{
+                "key": "InstallAssurePolicy",
+                "name": "保装车",
+                "reason": "第1项:品质不支持;第2项:品质不支持"
+            }, {
+                "key": "QualityAssurePolicy",
+                "name": "商家质保",
+                "reason": "null;第2项:质保1年:品质不支持;第3项:质保1年:品质不支持"
+            }, {
+                "key": "ReturnAndChangePolicy",
+                "name": "包退货",
+                "reason": "null;第2项:7天包退货:品质不支持;第3项:7天包退货:品质不支持;第4项:7天包退货:品质不支持"
+            }, {
+                "key": "CassQualityAssurePolicy",
+                "name": "开思质保",
+                "reason": "质保六个月第1项：品质不支持;质保六个月第2项：标准名称不支持;质保六个月第3项：品质不支持"
+            }, {
+                "key": "CompensationPolicy11",
+                "name": "假一罚N",
+                "reason": "暂无配置"
+            }
             ]
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
         print('test_enum_base_7', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+        # enum校验_6
+
+    def test_enum_jsonloads_1(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'data': Enum([11, 22, 33], iterate_list=True, jsonloads=True)
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success',
+            'data': "[11,22,23]"
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_jsonloads_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     # like_nulable校验
