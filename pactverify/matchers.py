@@ -4,10 +4,12 @@ import six, re, json
 from json import JSONDecodeError
 
 '''
-v1.4版本新增特性：
+v1.5版本新增特性：
 1. Matcherm,Like,EachLike,Enum类新增jsonloads属性,jsonloads为true时，将目标字符串进行json.loads操作，转化为dict结构对比
 json字符串实例：
 "{\"name\": \"lilei\", \"age\": 18}"
+
+2. Matcher,Like新增key_missable属性，key_missable为true时，key可以不存在
 '''
 
 
@@ -17,7 +19,7 @@ class Matcher(object):
     json_class_key = 'json_class'
     contents_key = 'contents'
 
-    def __init__(self, matcher, jsonloads=False):
+    def __init__(self, matcher, jsonloads=False, key_missable=False):
 
         valid_types = (
             type(None), list, dict, int, float, six.string_types)
@@ -27,6 +29,7 @@ class Matcher(object):
                 valid_types, type(matcher)))
         self.matcher = matcher
         self.jsonloads = jsonloads
+        self.key_missable = key_missable
 
     def generate(self):
         """
@@ -37,7 +40,8 @@ class Matcher(object):
         matcher_dict = {
             'json_class': 'Matcher',
             'contents': {},
-            'jsonloads': self.jsonloads
+            'jsonloads': self.jsonloads,
+            'key_missable': self.key_missable
         }
         # dict类型
         if type(self.matcher) == dict:
@@ -115,7 +119,7 @@ class Like(Matcher):
     service, instead of a randomly generated value.
     """
 
-    def __init__(self, matcher, nullable=False, dict_emptiable=False, jsonloads=False):
+    def __init__(self, matcher, nullable=False, dict_emptiable=False, jsonloads=False, key_missable=False):
         """
         Create a new SomethingLike.
 
@@ -141,6 +145,7 @@ class Like(Matcher):
         else:
             self.dict_emptiable = False
         self.jsonloads = jsonloads
+        self.key_missable = key_missable
 
     def generate(self):
         """
@@ -155,7 +160,8 @@ class Like(Matcher):
             'contents': from_term(self.matcher),
             'nullable': self.nullable,
             'dict_emptiable': self.dict_emptiable,
-            'jsonloads': self.jsonloads
+            'jsonloads': self.jsonloads,
+            'key_missable': self.key_missable
         }
 
 
@@ -295,128 +301,114 @@ class PactVerify:
 
         if generate_dict is None:
             generate_dict = self.generate_dict
-        # 非matcher校验,严格校验
-        if not self._is_matcher_json(generate_dict):
-            self._normal_pact_verify(target_key, actual_data, generate_dict)
-        else:
-            json_class, contents = generate_dict.get(json_class_key), generate_dict.get(contents_key)
-            jsonloads = generate_dict.get(jsonloads_key, False)
-            # 转化json字符
-            go_next, actual_data = self._jsonStr_loads(target_key, actual_data, jsonloads)
-            if go_next:
-                # Matcher严格匹配
-                if json_class == 'Matcher':
-                    if type(contents) != dict:
-                        self._check_param_value(target_key, actual_data, contents)
-                    else:
-                        for k, v in contents.items():
-                            target_k = target_key
-                            if self._check_param_type(target_k, actual_data, dict):
+
+        json_class, contents = generate_dict.get(json_class_key), generate_dict.get(contents_key)
+        jsonloads = generate_dict.get(jsonloads_key, False)
+        # 转化json字符
+        go_next, actual_data = self._jsonStr_loads(target_key, actual_data, jsonloads)
+        if go_next:
+            # Matcher严格匹配
+            if json_class == 'Matcher':
+                if type(contents) != dict:
+                    self._check_param_value(target_key, actual_data, contents)
+                else:
+                    for k, v in contents.items():
+                        target_k = target_key
+
+                        if self._check_param_type(target_k, actual_data, dict):
+                            target_k = '{}.{}'.format(target_key, k)
+                            if not self._skip_check_param_key(k, actual_data,
+                                                              contents.get(k,{})) and self._check_param_key(target_k,
+                                                                                                       actual_data,
+                                                                                                       k):
+                                if type(v) == dict and self._is_matcher_json(v):
+                                    target_data, target_generate_dict = actual_data.get(k), v
+                                    self.verify(target_data, target_k, target_generate_dict)
+                                else:
+                                    self._check_param_value(target_k, actual_data.get(k), v)
+                    # Like校验字段值类型一致
+            elif json_class == 'Like':
+                nullable, dict_emptiable = generate_dict.get(nullable_key), generate_dict.get(dict_emptiable_key)
+
+                # Like(11)形式
+                if type(contents) != dict:
+                    self._check_param_type(target_key, actual_data, type(contents), nullable=nullable)
+                else:
+                    if type(actual_data) == dict:
+                        if not self._check_dict_emptiable(actual_data, dict_emptiable):
+                            for k, v in contents.items():
+                                # contents非dict类型;contents为dict类型,没有嵌套matcher_json
                                 target_k = '{}.{}'.format(target_key, k)
-                                if self._check_param_key(target_k, actual_data, k):
-                                    if type(v) == dict and self._is_matcher_json(v):
-                                        target_data, target_generate_dict = actual_data.get(k), v
-                                        self.verify(target_data, target_k, target_generate_dict)
-                                    else:
-                                        self._check_param_value(target_k, actual_data.get(k), v)
-                        # Like校验字段值类型一致
-                elif json_class == 'Like':
-                    nullable, dict_emptiable = generate_dict.get(nullable_key), generate_dict.get(dict_emptiable_key)
-
-                    # Like(11)形式
-                    if type(contents) != dict:
-                        self._check_param_type(target_key, actual_data, type(contents), nullable=nullable)
+                                if type(v) == dict and self._is_matcher_json(v):
+                                    if self._check_param_type(target_k, actual_data, dict, nullable=nullable):
+                                        # 嵌套term对象,actual_data需包含k
+                                        if not self._skip_check_param_key(k, actual_data,
+                                                                          contents.get(k,{})) and self._check_param_key(
+                                            target_k, actual_data, k):
+                                            target_data, target_generate_dict = actual_data.get(k), v
+                                            self.verify(target_data, target_k, target_generate_dict)
+                                else:
+                                    if not self._skip_check_param_key(k, actual_data,
+                                                                      contents.get(k,{})) and self._check_param_key(
+                                        target_k, actual_data, k):
+                                        self._check_param_type(target_k, actual_data.get(k), type(v),
+                                                               nullable=nullable)
                     else:
-                        if type(actual_data) == dict:
-                            if not self._check_dict_emptiable(actual_data, dict_emptiable):
-                                for k, v in contents.items():
-                                    # contents非dict类型;contents为dict类型,没有嵌套matcher_json
-                                    target_k = '{}.{}'.format(target_key, k)
-                                    if type(v) == dict and self._is_matcher_json(v):
-                                        if self._check_param_type(target_k, actual_data, dict, nullable=nullable):
-                                            # 嵌套term对象,actual_data需包含k
-                                            if self._check_param_key(target_k, actual_data, k):
-                                                target_data, target_generate_dict = actual_data.get(k), v
-                                                self.verify(target_data, target_k, target_generate_dict)
-                                    else:
-                                        if self._check_param_key(target_k, actual_data, k):
-                                            self._check_param_type(target_k, actual_data.get(k), type(v),
-                                                                   nullable=nullable)
+                        self._check_param_type(target_key, actual_data, dict, nullable=nullable)
+
+            # EachLike外层校验list类型
+            elif json_class == 'EachLike':
+                # target_data类型为list
+                if self._check_param_type(target_key, actual_data, list):
+                    list_min_len = generate_dict.get('min')
+                    # 最小长度校验
+                    self._check_param_list_len(target_key, actual_data, list_min_len)
+                    for i in range(0, len(actual_data)):
+                        inner_data = actual_data[i]
+                        target_k = '{}.{}'.format(target_key, i)
+                        # 多层EachLike嵌套场景
+                        if self._is_matcher_json(contents) and contents.get(json_class_key) == 'EachLike':
+                            # inner_data数据需为list
+                            if self._check_param_type(target_k, inner_data, list):
+                                inner_contents = contents.get(contents_key)
+                                inner_min_len = contents.get('min')
+                                if self._check_param_list_len(target_k, inner_data, inner_min_len):
+                                    for inner_i, inner_t in enumerate(inner_data):
+                                        target_k_inner = '{}.{}'.format(target_k, inner_i)
+                                        target_data = inner_t
+                                        target_generate_dict = {
+                                            'json_class': 'Like',
+                                            'contents': inner_contents
+                                        }
+                                        # 转Like处理
+                                        self.verify(target_data, target_k_inner, target_generate_dict)
+
+                        # 单层eachlike的场景
                         else:
-                            self._check_param_type(target_key, actual_data, dict, nullable=nullable)
+                            target_data = inner_data
+                            target_generate_dict = {
+                                'json_class': 'Like',
+                                'contents': contents
+                            }
+                            # 转Like处理
+                            self.verify(target_data, target_k, target_generate_dict)
+            # Term正则匹配
+            elif json_class == 'Term':
+                regex_str = contents
+                example = generate_dict.get('example')
+                # example类型校验
+                if self._check_param_type(target_key, actual_data, type(example)):
+                    self._check_param_value(target_key, actual_data, regex_str, regex_mode=True)
 
-                # EachLike外层校验list类型
-                elif json_class == 'EachLike':
-                    # target_data类型为list
-                    if self._check_param_type(target_key, actual_data, list):
-                        list_min_len = generate_dict.get('min')
-                        # 最小长度校验
-                        self._check_param_list_len(target_key, actual_data, list_min_len)
-                        for i in range(0, len(actual_data)):
-                            inner_data = actual_data[i]
-                            target_k = '{}.{}'.format(target_key, i)
-                            # 多层EachLike嵌套场景
-                            if self._is_matcher_json(contents) and contents.get(json_class_key) == 'EachLike':
-                                # inner_data数据需为list
-                                if self._check_param_type(target_k, inner_data, list):
-                                    inner_contents = contents.get(contents_key)
-                                    inner_min_len = contents.get('min')
-                                    if self._check_param_list_len(target_k, inner_data, inner_min_len):
-                                        for inner_i, inner_t in enumerate(inner_data):
-                                            target_k_inner = '{}.{}'.format(target_k, inner_i)
-                                            target_data = inner_t
-                                            target_generate_dict = {
-                                                'json_class': 'Like',
-                                                'contents': inner_contents
-                                            }
-                                            # 转Like处理
-                                            self.verify(target_data, target_k_inner, target_generate_dict)
-
-                            # 单层eachlike的场景
-                            else:
-                                target_data = inner_data
-                                target_generate_dict = {
-                                    'json_class': 'Like',
-                                    'contents': contents
-                                }
-                                # 转Like处理
-                                self.verify(target_data, target_k, target_generate_dict)
-                # Term正则匹配
-                elif json_class == 'Term':
-                    regex_str = contents
-                    example = generate_dict.get('example')
-                    # example类型校验
-                    if self._check_param_type(target_key, actual_data, type(example)):
-                        self._check_param_value(target_key, actual_data, regex_str, regex_mode=True)
-
-                elif json_class == 'Enum':
-                    expect_enum, iterate_list = contents, generate_dict.get(iterate_list_key)
-                    # 遍历目标数组中的元素
-                    if iterate_list and type(actual_data) == list:
-                        for i, v in enumerate(actual_data):
-                            target_k = '{}.{}'.format(target_key, i)
-                            self._check_enum_element(target_k, v, expect_enum)
-                    else:
-                        self._check_enum_element(target_key, actual_data, expect_enum)
-
-    # 正常契约校验,严格匹配
-    def _normal_pact_verify(self, target_key, actual_data, generate_dict):
-        try:
-            for k, v in generate_dict.items():
-                # key校验
-                target_k = '{}.{}'.format(target_key, k)
-                key_check_result = self._check_param_key(target_k, actual_data, k)
-                if key_check_result:
-                    # 非dict结构直接对比
-                    if not (type(v) == dict and self._is_matcher_json(v)):
-                        self._check_param_value(target_k, actual_data.get(k), v)
-                    # dict结构递归解析
-                    else:
-                        target_data, target_generate_dict = actual_data.get(k), v
-                        self.verify(target_data, target_k, target_generate_dict)
-
-        except AttributeError:
-            self._update_type_error(target_key, actual_data, dict)
+            elif json_class == 'Enum':
+                expect_enum, iterate_list = contents, generate_dict.get(iterate_list_key)
+                # 遍历目标数组中的元素
+                if iterate_list and type(actual_data) == list:
+                    for i, v in enumerate(actual_data):
+                        target_k = '{}.{}'.format(target_key, i)
+                        self._check_enum_element(target_k, v, expect_enum)
+                else:
+                    self._check_enum_element(target_key, actual_data, expect_enum)
 
     # 将json字符串转化为json对象
     def _jsonStr_loads(self, target_key, target_data, jsonloads):
@@ -460,6 +452,16 @@ class PactVerify:
                 check_result = False
                 self._update_type_error(target_key, target_data, expect_type)
         return check_result
+
+    # 跳过参数key校验   result=True时跳过校验   target_key为实际key，不加拼接路径
+    def _skip_check_param_key(self, target_key, target_data, generate_dict):
+        result = False
+        # skip key校验
+        if self._is_matcher_json(generate_dict) and generate_dict.get('key_missable', False) == True:
+            if type(target_data) == dict and target_key not in target_data:
+                result = True
+        # print(111111, target_key, target_data, generate_dict,result)
+        return result
 
     # 校验参数key
     def _check_param_key(self, target_key, target_data, expect_key):

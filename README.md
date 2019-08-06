@@ -129,8 +129,6 @@ expect_format_2 = Matcher(1.0)
 expect_format_3 = Matcher('11')
 # 预期返回数据actual为dict结构，actual['k1'] == 'v1'
 expect_format_4 = Matcher({'k1':'v1'})
-# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.dumps再校验
-expect_format_5 = Matcher({'k1':'v1'},jsonloads = True)
 ```  
 ### 2. Like类  
 #### 校验规则：类型匹配
@@ -143,12 +141,6 @@ expect_format_2 = Like(1.0)
 expect_format_3 = Like('11')
 # 预期返回数据actual为dict结构，actual['k1'] == type('v1')
 expect_format_4 = Like({'k1':'v1'})
-# nullable为true时允许返回null，预期null和(actual为dict结构，actual['k1'] == type('v1') or null)形式
-expect_format_5 = Like({'k1': 'v1'},nullable=True)
-# dict_emptiable为true时，允许返回{}，预期{}和(actual为dict结构，actual['k1'] == type('v1'))形式
-expect_format_6 = Like({'k1': 'v1'},dict_emptiable=True)
-# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.dumps再校验
-expect_format_7 = Like({'k1': 'v1'},jsonloads = True)
 ```
 ### 3. EachLike类  
 #### 校验规则：数组类型匹配
@@ -163,8 +155,6 @@ expect_format_3 = EachLike('11')
 expect_format_4 = EachLike({'k1': 'v1'})
 # 预期[Like{'k1':'v1'}]或[],minimum为数组最小长度,默认minimum=1
 expect_format_4 = EachLike({'k1': 'v1'}, minimum=0)
-# actual为"[{\"k1\":\"v1\"}]"json字符串格式时，先进行json.dumps再校验
-expect_format_5 = EachLike({'k1': 'v1'},jsonloads = True)
 ```
 
 ### 4. Term类  
@@ -181,8 +171,6 @@ expect_format_1 = Term(r'^\d{2}$', example=111)
 expected_format_1 = Enum([11, 22])
 # iterate_list为true时，当目标数据为数组时，会遍历数组中每个元素是否in [11, 22]
 expected_format_2 = Enum([11, 22],iterate_list=True)
-# actual为"[11,22]"json字符串格式时，先进行json.dumps再校验
-expected_format_2 = Enum([11, 22],jsonloads = True)
 ```
 
 -------------
@@ -271,113 +259,42 @@ expect_format = Like({
 
 -------------
 
-## 五.多规则混合  
+## 五.异常场景匹配
+### 5.1 null匹配  
 ```python
-# Matcher: 值匹配
-expect_format = Matcher({
-    "msg": "success",   # msg字段存在,并且msg="success"
-    "code": 200,        # code字段存在,并且code="success"
-    # Enum:枚举匹配
-    'name': Enum(['lili', 'xiaohei']),    # name字段存在,并且name in ['lili', 'xiaohei']
-    # Term:正则匹配
-    "addr": Term(r'深圳*', example='深圳宝安'),  # name字段存在,并且addr正则匹配深圳*,example为正则表达式测试用str
-    # Like:类型匹配
-    "config": Like({
-        'carModeCode': '11'    # carModeCode字段存在,并且type('carModeCode') == type('11')
-    }),
-    # EachLike: 数组值类型匹配
-    "data": EachLike({
-        "type_id": 249,     # type_id字段存在,并且type('type_id') == type(249)
-        "name": "王者荣耀",
-        "order_index": 1,
-        "status": 1,
-        "subtitle": " ",
-        "game_name": "王者荣耀"
-    }),
-    # EachLike: 数组值类型匹配
-    'data_2': EachLike({
-        "type_id": 249,
-        "name": "王者荣耀",
-        "order_index": 1,
-        "status": 1,
-        "subtitle": " ",
-        "game_name": "王者荣耀"
-    }, minimum=2)    # 数组元素最小长度为2
-})
- 
-# 实际返回数据
-actual_data = {
-    "msg": "success",
-    "code": 0,
-    'name': 'liuhui',
-    'addr': '上海浦东',
-    'config': {
-        'carModeCode': 11
-    },
-    "data": [{
-        "type_id": '249',
-        "name": "王者荣耀",
-        "order_index": 1,
-        "status": 1,
-        "subtitle": " ",
-        "game_name": "王者荣耀"
-    }, {
-        "name": "绝地求生",
-        "order_index": 2,
-        "status": 1,
-        "subtitle": " ",
-        "game_name": "绝地求生"
-    }, {
-        "type_id": 251,
-        "name": "刺激战场",
-        "order_index": 3,
-        "status": 1,
-        "subtitle": " ",
-    }
-    ],
-    'data_2': []
-}
-mPactVerify = PactVerify(expect_format)
-# 校验实际返回数据
-mPactVerify.verify(actual_data)
-# 校验结果  False
-print(mPactVerify.verify_result)
-'''{
-    # key不匹配,预期字段不存在
-   'key_not_macth_error': ['type_id', 'game_name'],
-   #值不匹配
-   'value_not_match_error': [{
-         'actual_value': 0,
-         'expect_value': 200
-      }, {
-         'actual_value': '上海浦东',
-         'expect_regex': '深圳*'
-      }
-   ],
-   # 类型不匹配
-   'type_not_match_error': [{
-         'actual_vaule': 11,
-         'expect_type': 'str'
-      }, {
-         'actual_vaule': '249',
-         'expect_type': 'int'
-      }
-   ],
-   # 数组长度不匹配
-   'list_len_not_match_error': [{
-         'actual_value': [],
-         'min_len': 2
-      }
-   ],
-   # 枚举数据不匹配
-   'enum_not_match_error': [{
-         'actual_value': 'liuhui',
-         'expect_enum': ['lili', 'xiaohei']
-      }
-   ]
-}'''
-print(mPactVerify.verify_info)
+# nullable为true时允许返回null，预期null和（actual为dict结构，actual['k1'] == type('v1') or null）形式
+expect_format = Like({'k1': 'v1'},nullable=True)
 ```
+
+### 5.2 {}匹配  
+```python
+# dict_emptiable为true时，允许返回{}，预期{}和（actual为dict结构，actual['k1'] == type('v1')）形式
+expect_format = Like({'k1': 'v1'},dict_emptiable=True)
+```
+
+### 5.3 json格式字符串匹配  
+```python
+# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.dumps再校验
+expect_format = Matcher({'k1':'v1'},jsonloads = True)
+# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.dumps再校验
+expect_format = Like({'k1': 'v1'},jsonloads = True)
+# actual为"[{\"k1\":\"v1\"}]"json字符串格式时，先进行json.dumps再校验
+expect_format = EachLike({'k1': 'v1'}, jsonloads = True)
+# actual为"[11,22]"json字符串格式时，先进行json.dumps再校验
+expected_format = Enum([11, 22],jsonloads = True)
+
+```
+
+### 5.4 key不存在匹配  
+```python
+# key_missable为true时，允许key不存在，key存在时走正常校验；Matcher和Like类可使用该属性
+expect_format = Matcher({
+            'code': Like(0, key_missable=True),
+            'msg': Matcher('success', key_missable=True)
+        })
+```
+
+#### 注意：异常匹配场景越多,代表接口数据格式越不规范
 -------------
 
 ## 六.配合unittest+requests使用
