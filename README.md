@@ -124,6 +124,8 @@ expect_format_2 = Matcher(1.0)
 expect_format_3 = Matcher('11')
 # 预期返回数据actual为dict结构，actual['k1'] == 'v1'
 expect_format_4 = Matcher({'k1':'v1'})
+# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.dumps再校验
+expect_format_5 = Matcher({'k1':'v1'},jsonloads = True)
 ```  
 ### 2. Like类  
 #### 校验规则：类型匹配
@@ -140,6 +142,8 @@ expect_format_4 = Like({'k1':'v1'})
 expect_format_5 = Like({'k1': 'v1'},nullable=True)
 # dict_emptiable为true时，允许返回{}，预期{}和(actual为dict结构，actual['k1'] == type('v1'))形式
 expect_format_6 = Like({'k1': 'v1'},dict_emptiable=True)
+# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.dumps再校验
+expect_format_7 = Like({'k1': 'v1'},jsonloads = True)
 ```
 ### 3. EachLike类  
 #### 校验规则：数组类型匹配
@@ -154,6 +158,8 @@ expect_format_3 = EachLike('11')
 expect_format_4 = EachLike({'k1': 'v1'})
 # 预期[Like{'k1':'v1'}]或[],minimum为数组最小长度,默认minimum=1
 expect_format_4 = EachLike({'k1': 'v1'}, minimum=0)
+# actual为"[{\"k1\":\"v1\"}]"json字符串格式时，先进行json.dumps再校验
+expect_format_5 = EachLike({'k1': 'v1'},jsonloads = True)
 ```
 
 ### 4. Term类  
@@ -170,6 +176,8 @@ expect_format_1 = Term(r'^\d{2}$', example=111)
 expected_format_1 = Enum([11, 22])
 # iterate_list为true时，当目标数据为数组时，会遍历数组中每个元素是否in [11, 22]
 expected_format_2 = Enum([11, 22],iterate_list=True)
+# actual为"[11,22]"json字符串格式时，先进行json.dumps再校验
+expected_format_2 = Enum([11, 22],jsonloads = True)
 ```
 
 -------------
