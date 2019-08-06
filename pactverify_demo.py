@@ -4,7 +4,7 @@
 # @Author  : liuhui
 # @Detail  : 使用实例
 
-from pact.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
+from pactverify.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
 # 定义契约格式
 expect_format = Matcher({'k1':'v1'})

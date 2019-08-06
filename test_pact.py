@@ -4,7 +4,7 @@
 # @Author  : liuhui
 # @Detail  : unittest用例
 import unittest, requests, HtmlTestRunner, os
-from pact.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
+from pactverify.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
 
 class PactTest(unittest.TestCase):

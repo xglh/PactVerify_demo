@@ -34,9 +34,9 @@
 
 ```
 
-在研究了[契约测试](https://www.pact.net.cn/documentation/what_is_pact.html)后，抽取[pact-python](https://github.com/pact-foundation/pact-python)部分代码，实现：自定义接口返回数据格式(<font color="RED">契约定义</font>)-实际响应数据格式校验(<font color="RED">契约校验</font>)的功能
+在研究了[契约测试](https://www.pact.net.cn/documentation/what_is_pact.html)后，抽取[pact-python](https://github.com/pact-foundation/pact-python)部分代码，实现：自定义接口返回数据格式(【契约定义】)-实际响应数据格式校验(【契约校验】)的功能
 
-备注：这里的<font color="RED">契约</font>等同于接口响应数据结构  
+备注：这里的【契约】等同于接口响应数据结构  
 
 -------------
 ## 二.校验原则
@@ -44,14 +44,14 @@
 >1.实际返回数据必须包含契约中定义的字段,可以多字段,但不能少  
 >2.字段值可以值相等或类型相等  
 
-<span style="color: red">目标：对返回数据进行全量(字段名-值/类型)校验</span>  
+目标：对返回数据进行全量(字段名-值/类型)校验 
 
 -------------
 
 ## 三.基本使用
 ### 示例：
 ```python
-from pact.matchers import Matcher, Like, EachLike, Term, PactVerify
+from pactverify.matchers import Matcher, Like, EachLike, Term, PactVerify
 
 # 定义契约格式
 expect_format = Matcher({
@@ -253,7 +253,7 @@ expect_format = Like({
 ```
 #### 说明：
 >1. Matcher，Like和EachLike类可以不限层级嵌套，Term和Enum则不能嵌套其他规则
->2. 匹配规则多层规则嵌套时，内层规则优先生效
+>2. 匹配规则多层嵌套时，内层规则优先生效
 
 
 -------------
@@ -369,8 +369,8 @@ print(mPactVerify.verify_info)
 
 ## 六.配合unittest+requests使用
 ```python
-mport unittest, requests, HtmlTestRunner, os
-from pact.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
+import unittest, requests, HtmlTestRunner, os
+from pactverify.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
 
 class PactTest(unittest.TestCase):
@@ -423,5 +423,5 @@ if __name__ == '__main__':
     runner.run(suite)
 ```
 ## 七.优点总结  
-><span style="color: red">1.显式定义接口断言格式，接口断言更加直观</span>  
-><span style="color: red">2.可复用接口实际响应数据来定义契约</span> 
+>1.显式定义接口断言格式，接口断言更加直观  
+>2.可复用接口实际响应数据来定义契约  

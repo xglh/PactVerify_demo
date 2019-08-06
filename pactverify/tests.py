@@ -1,7 +1,7 @@
 # coding:utf-8
 
 import unittest
-from pact.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
+from pactverify.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
 
 class Test(unittest.TestCase):

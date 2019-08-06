@@ -3,7 +3,7 @@
 import six, re
 
 '''
-lastest版本新增特性：
+v1.3版本新增特性：
 1. Enum类新增iterate_list参数，iterate_list为true时会解析目标数组的每个元素是否符合Enum规则
 '''
 
