@@ -86,6 +86,85 @@ class Test(unittest.TestCase):
         print('test_matcher_base_5', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
+    # keymissable
+    def test_Matcher_keymissable_6(self):
+        expected_format = Matcher({
+            'code': Like(0, key_missable=True),
+            'msg': Matcher('success', key_missable=True),
+            'data': Like({
+                'name': 'lilei',
+                'age': Like('18', key_missable=True)
+            }, key_missable=True)
+        })
+        result_1 = {
+            'code': 0,
+            'data': {
+                'name': 'lilei',
+            }
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_Matcher_keymissable_6', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # Macher配置
+    def test_matcher_dict_emptiable_7(self):
+        expected_format = Matcher({
+            'code': 0,
+            'msg': 'success',
+            'data': Matcher(
+                {'name': 'Jonas11', 'age': 12, 'phone': 'bbbaa'}, dict_emptiable=True
+            )
+        })
+        result_2 = {
+            'code': 0,
+            'msg': 'success',
+            'data': {},
+            'age_2': 'aaa'
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_2)
+        print('test_matcher_dict_emptiable_7', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # Macher配置
+    def test_matcher_nullable_8(self):
+        expected_format = Matcher({
+            'code': 0,
+            'msg': 'success',
+            'data': Matcher(
+                {'name': 'Jonas11', 'age': 12, 'phone': 'bbbaa'}, nullable=True
+            )
+        })
+        result_2 = {
+            'code': 0,
+            'msg': 'success',
+            'data': None
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_2)
+        print('test_matcher_nullable_8', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # Macher配置
+    def test_matcher_nullable_9(self):
+        expected_format = Matcher({
+            'code': 0,
+            'msg': 'success',
+            'data': Matcher(
+                {'name': 'Jonas11', 'age': 12, 'phone': 'bbbaa'}, nullable=True
+            )
+        })
+        result_2 = {
+            'code': 0,
+            'msg': 'success',
+            'data': {'name': None, 'age': None, 'phone': None}
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_2)
+        print('test_matcher_nullable_9', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
     # Like基础配置-校验通过
     def test_like_base_1(self):
         expected_format = Like({
@@ -336,12 +415,77 @@ class Test(unittest.TestCase):
     # Term基础配置
     def test_term_base_1(self):
         expected_format = Term(r'^\d{2}$', 11)
-        result_1 = 112
+        result_1 = 123
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
         print('test_term_base_1', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
+
+    # Term key_missable
+    def test_term_base_2(self):
+        expected_format = Like({
+            'name': 'lilei',
+            'age': Term(r'^\d{2}$', example=11, key_missable=True)
+
+        })
+        result_1 = {
+            'name': 'lilei'
+        }
+        mPactVerify = PactVerify(expected_format)
+        print(expected_format.generate())
+        mPactVerify.verify(result_1)
+        print('test_term_base_2', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # Term key_missable
+    def test_term_key_missable_3(self):
+        expected_format = Like({
+            'name': 'lilei',
+            'age': Term(r'^\d{2}$', example=11, key_missable=True),
+            'count': Term(r'^\d{2}$', example=11, key_missable=True),
+
+        })
+        result_1 = {
+            'name': 'lilei',
+            'count': 123
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_term_key_missable_3', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == False
+
+    # Term key_missable
+    def test_term_key_missable_4(self):
+        expected_format = Term(r'^\d{2}$', example=11, key_missable=True)
+        result_1 = 123
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_term_key_missable_4', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == False
+
+    # Term nullable
+    def test_term_nullable_5(self):
+        expected_format = Term(r'^\d{2}$', example=11, nullable=True)
+        result_1 = None
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_term_nullable_5', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # Term nullable
+    def test_term_nullable_6(self):
+        expected_format = Like({
+            'code': Term(r'^\d{2}$', example=11, nullable=True)
+        })
+
+        result_1 = {
+            'code': None
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_term_nullable_6', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
 
     # EachLike单层配置
     def test_eachlike_base_1(self):
@@ -802,9 +946,9 @@ class Test(unittest.TestCase):
         mPactVerify.verify(result_1)
         print('test_eachlike_base_9', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
-        # EachLike单层配置
 
-    def test_eachlike_jsonloads_1(self):
+    # EachLike单层配置
+    def test_eachlike_jsonloads_12(self):
         expected_format = Like({
             'code': 0,
             'msg': 'success',
@@ -817,11 +961,132 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_jsonloads_1', mPactVerify.verify_info)
+        print('test_eachlike_jsonloads_12', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
-        # enum校验_1
+    # EachLike key_missable
+    def test_eachlike_key_missable_13(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'data': EachLike({
+                'k1': 11,
+                'k2': 'aa',
+                'k3': 'haah'}, key_missable=True)
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success'
+        }
+        mPactVerify = PactVerify(expected_format)
 
+        mPactVerify.verify(result_1)
+        print('test_eachlike_key_missable_13', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # EachLike key_missable
+    def test_eachlike_key_missable_14(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'data': EachLike({
+                'k1': 11,
+                'k2': 'aa',
+                'k3': 'haah'}, key_missable=True)
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success',
+            'data': [{
+                'k1': '11',
+                'k2': 'aa',
+                'k3': 'haah'
+            }]
+        }
+        mPactVerify = PactVerify(expected_format)
+
+        mPactVerify.verify(result_1)
+        print('test_eachlike_key_missable_14', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == False
+
+    # EachLike key_missable
+    def test_eachlike_key_missable_15(self):
+        expected_format = EachLike({
+            'k1': 11,
+            'k2': 'aa',
+            'k3': 'haah'}, key_missable=True)
+        result_1 = []
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_eachlike_key_missable_14', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == False
+
+    # EachLike key_missable
+    def test_eachlike_key_nullable_16(self):
+        expected_format = EachLike(11, nullable=True)
+        result_1 = None
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_eachlike_key_nullable_16', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # EachLike key_missable
+    def test_eachlike_key_nullable_17(self):
+        expected_format = Like({
+            'list': EachLike(11, nullable=True)
+        })
+        result_1 = {
+            'list': None
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_eachlike_key_nullable_17', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # EachLike key_missable
+    def test_eachlike_key_nullable_18(self):
+        expected_format = Like({
+            'list': EachLike({'age': 18}, nullable=True)
+        })
+        result_1 = {
+            'list': [{
+                'age': None
+            }]
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_eachlike_key_nullable_18', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # EachLike key_missable
+    def test_eachlike_key_nullable_19(self):
+        expected_format = Like({
+            'list': EachLike({'age': 18}, nullable=True)
+        })
+        result_1 = {
+            'list': [None]
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_eachlike_key_nullable_19', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # EachLike key_missable
+    def test_eachlike_key_nullable_20(self):
+        expected_format = Like({
+            'list': EachLike(EachLike({'age': 18}, nullable=True), nullable=False)
+        })
+        result_1 = {
+            'list': [[{
+                'age': None
+            }], [None]]
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_eachlike_key_nullable_20', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    # enum校验_1
     def test_enum_base_1(self):
         expected_format = Enum([11, 22])
         result_1 = 13
@@ -970,7 +1235,7 @@ class Test(unittest.TestCase):
         assert mPactVerify.verify_result == True
         # enum校验_6
 
-    def test_enum_jsonloads_1(self):
+    def test_enum_jsonloads_8(self):
         expected_format = Like({
             'code': 0,
             'msg': 'success',
@@ -983,8 +1248,52 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_jsonloads_1', mPactVerify.verify_info)
+        print('test_enum_jsonloads_8', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
+
+    def test_enum_key_missable_9(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'data': Enum([11, 22, 33], iterate_list=True, jsonloads=True, key_missable=True)
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success'
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_key_missable_9', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    def test_enum_key_missable_10(self):
+        expected_format = Enum([11, 22, 33], key_missable=True)
+        result_1 = None
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_key_missable_10', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == False
+
+    def test_enum_nullable_11(self):
+        expected_format = Enum([11, 22, 33], nullable=True)
+        result_1 = None
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_nullable_11', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
+    def test_enum_nullable_12(self):
+        expected_format = Like({
+            'code': Enum([11, 22, 33], nullable=True)
+        })
+
+        result_1 = {
+            'code': 23
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_nullable_12', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == False
 
     # like_nulable校验
     def test_like_nulable_1(self):
@@ -1087,29 +1396,8 @@ class Test(unittest.TestCase):
         assert mPactVerify.verify_result == False
 
     # keymissable
-    def test_keymissable_1(self):
-        expected_format = Matcher({
-            'code': Like(0, key_missable=True),
-            'msg': Matcher('success', key_missable=True),
-            'data': Like({
-                'name': 'lilei',
-                'age': Like('18', key_missable=True)
-            }, key_missable=True)
-        })
-        result_1 = {
-            'code': 0,
-            'data': {
-                'name': 'lilei',
-            }
-        }
-        mPactVerify = PactVerify(expected_format)
-        mPactVerify.verify(result_1)
-        print('test_keymissable_1', mPactVerify.verify_info)
-        assert mPactVerify.verify_result == True
-
-    # keymissable
     def test_keymissable_2(self):
-        expected_format = Matcher(11,key_missable= True)
+        expected_format = Matcher(11, key_missable=True)
         result_1 = 'aa'
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
@@ -1118,17 +1406,57 @@ class Test(unittest.TestCase):
 
     # keymissable
     def test_keymissable_3(self):
-        expected_format = Like(11,key_missable= True)
+        expected_format = Like(11, key_missable=True)
         result_1 = 'aa'
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
         print('test_keymissable_2', mPactVerify.verify_info)
         assert mPactVerify.verify_result == False
 
-        Matcher({
-            'code': Like(0, key_missable=True),
-            'msg': Matcher('success', key_missable=True)
+    # keymissable
+    def test_keymissable_4(self):
+        expected_format = Like({
+            'list': EachLike({
+                "id": "1158622356088750081",
+                "created_at": 1565072071000,
+                "updated_at": 1565072071000,
+                "user_id": "1158291201286074370",
+                "vin_code": "1FA6P8TH9G5328025",
+                "query_fee": 0.0,
+                "query_status": 0,
+                "description": Like("没有查询到VIN码对应的车辆信息", key_missable=True),
+                "key_info": Like({
+                    "brandName": "路虎", "brandId": "LANDROVER"
+                }, key_missable=True, jsonloads=True),
+                "result_id": "0"
+            })
         })
+        result_1 = {"list": [{
+            "id": "1158622356088750081",
+            "created_at": 1565072071000,
+            "updated_at": 1565072071000,
+            "user_id": "1158291201286074370",
+            "vin_code": "1FA6P8TH9G5328025",
+            "query_fee": 0.0,
+            "query_status": 0,
+            "description": "没有查询到VIN码对应的车辆信息",
+            "result_id": "0"
+        }, {
+            "id": "1158622352030654465",
+            "created_at": 1565072070000,
+            "updated_at": 1565072070000,
+            "user_id": "1158291201286074370",
+            "vin_code": "SALWR2WF9EA323304",
+            "query_fee": 0.0,
+            "query_status": 1,
+            "result_id": "1158622351816744962",
+            "key_info": "{\"brandName\":\"路虎\",\"brandId\":\"LANDROVER\"}"
+        }]}
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_keymissable_4', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == True
+
 
 if __name__ == '__main__':
     unittest.main()

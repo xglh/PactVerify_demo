@@ -262,12 +262,22 @@ expect_format = Like({
 ## 五.异常场景匹配
 ### 5.1 null匹配  
 ```python
+# nullable为true时允许返回null，预期null和（actual为dict结构，actual['k1'] == 'v1' or null）形式
+expect_format = Matcher({'k1': 'v1'},nullable=True)
 # nullable为true时允许返回null，预期null和（actual为dict结构，actual['k1'] == type('v1') or null）形式
 expect_format = Like({'k1': 'v1'},nullable=True)
+# nullable为true时允许返回null，预期null和[null,{'k1':null}]形式
+expect_format = EachLike({'k1': 'v1'},nullable=True)
+# nullable为true时允许返回null，预期null和11形式
+expect_format = Term(r'^\d{2}$', example=11, nullable=True)
+# nullable为true时允许返回null，预期null和11/22/33形式
+expect_format = Enum([11, 22, 33], nullable=True)
 ```
 
 ### 5.2 {}匹配  
 ```python
+# dict_emptiable为true时，允许返回{}，预期{}和（actual为dict结构，actual['k1'] == 'v1'）形式
+expect_format = Matcher({'k1': 'v1'},dict_emptiable=True)
 # dict_emptiable为true时，允许返回{}，预期{}和（actual为dict结构，actual['k1'] == type('v1')）形式
 expect_format = Like({'k1': 'v1'},dict_emptiable=True)
 ```
@@ -287,10 +297,13 @@ expected_format = Enum([11, 22],jsonloads = True)
 
 ### 5.4 key不存在匹配  
 ```python
-# key_missable为true时，允许key不存在，key存在时走正常校验；Matcher和Like类可使用该属性
+# key_missable为true时，允许key不存在，key存在时走正常校验；Matcher,Like,EachLike,Term和Enum类都可使用该属性
 expect_format = Matcher({
             'code': Like(0, key_missable=True),
-            'msg': Matcher('success', key_missable=True)
+            'msg': Matcher('success', key_missable=True),
+            'data': EachLike(11, key_missable=True),
+            'age': Term(r'^\d{2}$', example=11, key_missable=True),
+            'num': Enum([11, 22, 33], key_missable=True)
         })
 ```
 
