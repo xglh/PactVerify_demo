@@ -1,16 +1,6 @@
 """Classes for defining request and response data that is variable."""
 
 import six, re, json
-from json import JSONDecodeError
-
-'''
-v1.5版本新增特性：
-1. Matcherm,Like,EachLike,Enum类新增jsonloads属性,jsonloads为true时，将目标字符串进行json.loads操作，转化为dict结构对比
-json字符串实例：
-"{\"name\": \"lilei\", \"age\": 18}"
-
-2. Matcher,Like新增key_missable属性，key_missable为true时，key可以不存在
-'''
 
 
 # 值匹配
