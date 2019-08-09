@@ -466,7 +466,7 @@ class PactVerify:
         check_result = True
         # nullable校验不通过继续校验
         if not self._check_nullable(target_data, nullable):
-            if not isinstance(target_data, expect_type):
+            if type(target_data) != expect_type:
                 check_result = False
                 self._update_type_error(target_key, target_data, expect_type)
         # nullable校验通过不继续校验

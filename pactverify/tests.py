@@ -1439,10 +1439,10 @@ class Test(unittest.TestCase):
                 "vin_code": "1FA6P8TH9G5328025",
                 "query_fee": 0.0,
                 "query_status": 0,
-                "description": Like("没有查询到VIN码对应的车辆信息", key_missable=False),
+                "description": Like("没有查询到VIN码对应的车辆信息", key_missable=True),
                 "key_info": Like({
                     "brandName": "路虎", "brandId": "LANDROVER"
-                }, key_missable=False, jsonloads=True),
+                }, key_missable=True, jsonloads=True),
                 "result_id": "0"
             })
         })
@@ -1472,6 +1472,64 @@ class Test(unittest.TestCase):
         print('test_keymissable_4', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
+    # keymissable
+    def test_error_1(self):
+        expected_format = Matcher(
+            {
+                "errorCode": 0,
+                "data": Like(
+                    {
+                        "allRights": EachLike(
+                            {
+                                "level": 0,
+                                "levelIcon": "string",
+                                "rightsLevelGrowthMin": 0,
+                                "rightsLevelGrowthMax": 0,
+                                "currentLevelValue": 0,
+                                "isCurrentLevel": True,
+                                "isNextGrowthLevel": 0,    # 把这里改成int值
+                                "rightDetail": EachLike(
+                                    {
+                                        "name": "string",
+                                        "description": "string",
+                                        "rightIcon": "string",
+                                        "code": "string"
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            }
+        )
+        result_1 = {
+            "errorCode": 0,
+            "data": {
+                "allRights": [
+                    {
+                        "level": 0,
+                        "levelIcon": "string",
+                        "rightsLevelGrowthMin": 0,
+                        "rightsLevelGrowthMax": 0,
+                        "currentLevelValue": 0,
+                        "isCurrentLevel": True,
+                        "isNextGrowthLevel": True,
+                        "rightDetail": [
+                            {
+                                "name": "string",
+                                "description": "string",
+                                "rightIcon": "string",
+                                "code": "string"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_error_1', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == False
 
 if __name__ == '__main__':
     unittest.main()
