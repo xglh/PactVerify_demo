@@ -1233,9 +1233,25 @@ class Test(unittest.TestCase):
         mPactVerify.verify(result_1)
         print('test_enum_base_7', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
-        # enum校验_6
 
-    def test_enum_jsonloads_8(self):
+    # enum校验_6
+    def test_enum_base_8(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'data': Enum([11, 22, 33], iterate_list=True)
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success',
+            'data': 11
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_base_8', mPactVerify.verify_info)
+        assert mPactVerify.verify_result == False
+
+    def test_enum_jsonloads_9(self):
         expected_format = Like({
             'code': 0,
             'msg': 'success',
@@ -1248,7 +1264,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_jsonloads_8', mPactVerify.verify_info)
+        print('test_enum_jsonloads_9', mPactVerify.verify_info)
         assert mPactVerify.verify_result == True
 
     def test_enum_key_missable_9(self):
