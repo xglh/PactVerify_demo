@@ -601,13 +601,22 @@ class PactVerify:
     # 校验错误信息
     @property
     def verify_info(self):
-        return {
-            'key_not_macth_error': self.key_not_macth_error,
-            'value_not_match_error': self.value_not_match_error,
-            'type_not_match_error': self.type_not_match_error,
-            'list_len_not_match_error': self.list_len_not_match_error,
-            'enum_not_match_error': self.enum_not_match_error
-        }
+        info = {}
+        if len(self.key_not_macth_error) > 0:
+            info['key_not_macth_error'] = self.key_not_macth_error
+
+        if len(self.value_not_match_error) > 0:
+            info['value_not_match_error'] = self.value_not_match_error
+
+        if len(self.type_not_match_error) > 0:
+            info['type_not_match_error'] = self.type_not_match_error
+
+        if len(self.list_len_not_match_error) > 0:
+            info['list_len_not_match_error'] = self.list_len_not_match_error
+
+        if len(self.enum_not_match_error) > 0:
+            info['enum_not_match_error'] = self.enum_not_match_error
+        return info
 
 
 # PactVerify校验异常

@@ -1,6 +1,6 @@
 # coding:utf-8
 
-import unittest
+import unittest, json
 from pactverify.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
 
@@ -22,7 +22,7 @@ class Test(unittest.TestCase):
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_matcher_base_1', mPactVerify.verify_info)
+        print('test_matcher_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Macher基础基础配置2-校验不通过
@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
         }]
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        print('test_matcher_base_2', mPactVerify.verify_info)
+        print('test_matcher_base_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Macher配置
@@ -54,7 +54,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        print('test_matcher_base_3', mPactVerify.verify_info)
+        print('test_matcher_base_3', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Macher配置
@@ -63,7 +63,7 @@ class Test(unittest.TestCase):
         result_2 = 'aa'
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        print('test_matcher_base_4', mPactVerify.verify_info)
+        print('test_matcher_base_4', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Macher配置
@@ -83,7 +83,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        print('test_matcher_base_5', mPactVerify.verify_info)
+        print('test_matcher_base_5', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # keymissable
@@ -104,7 +104,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_Matcher_keymissable_6', mPactVerify.verify_info)
+        print('test_Matcher_keymissable_6', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Macher配置
@@ -124,7 +124,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        print('test_matcher_dict_emptiable_7', mPactVerify.verify_info)
+        print('test_matcher_dict_emptiable_7', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Macher配置
@@ -143,7 +143,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        print('test_matcher_nullable_8', mPactVerify.verify_info)
+        print('test_matcher_nullable_8', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Macher配置
@@ -162,7 +162,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_2)
-        print('test_matcher_nullable_9', mPactVerify.verify_info)
+        print('test_matcher_nullable_9', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Like基础配置-校验通过
@@ -187,7 +187,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_like_base_1', mPactVerify.verify_info)
+        print('test_like_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Like配置-校验不通过
@@ -214,7 +214,7 @@ class Test(unittest.TestCase):
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_like_base_2', mPactVerify.verify_info)
+        print('test_like_base_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Like-Term嵌套-校验不通过
@@ -240,7 +240,7 @@ class Test(unittest.TestCase):
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_like_base_3', mPactVerify.verify_info)
+        print('test_like_base_3', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Like配置,目标数据格式不符合
@@ -258,7 +258,7 @@ class Test(unittest.TestCase):
         # # print(expected_format)
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_like_base_4', mPactVerify.verify_info)
+        print('test_like_base_4', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Like-Like嵌套
@@ -291,7 +291,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_like_base_5', mPactVerify.verify_info)
+        print('test_like_base_5', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Like-Like嵌套
@@ -351,7 +351,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_like_base_6', mPactVerify.verify_info)
+        print('test_like_base_6', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Like-Matcher嵌套
@@ -384,7 +384,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_like_base_7', mPactVerify.verify_info)
+        print('test_like_base_7', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Like基础配置-校验通过
@@ -409,7 +409,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_like_jsonloads_1', mPactVerify.verify_info)
+        print('test_like_jsonloads_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Term基础配置
@@ -419,7 +419,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_term_base_1', mPactVerify.verify_info)
+        print('test_term_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Term key_missable
@@ -433,9 +433,8 @@ class Test(unittest.TestCase):
             'name': 'lilei'
         }
         mPactVerify = PactVerify(expected_format)
-        print(expected_format.generate())
         mPactVerify.verify(result_1)
-        print('test_term_base_2', mPactVerify.verify_info)
+        print('test_term_base_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Term key_missable
@@ -452,7 +451,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_term_key_missable_3', mPactVerify.verify_info)
+        print('test_term_key_missable_3', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Term key_missable
@@ -461,7 +460,7 @@ class Test(unittest.TestCase):
         result_1 = 123
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_term_key_missable_4', mPactVerify.verify_info)
+        print('test_term_key_missable_4', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # Term nullable
@@ -470,7 +469,7 @@ class Test(unittest.TestCase):
         result_1 = None
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_term_nullable_5', mPactVerify.verify_info)
+        print('test_term_nullable_5', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # Term nullable
@@ -484,7 +483,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_term_nullable_6', mPactVerify.verify_info)
+        print('test_term_nullable_6', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike单层配置
@@ -512,7 +511,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        ##print('test_eachlike_base_1', mPactVerify.verify_info)
+        ##print('test_eachlike_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike多层嵌套
@@ -541,7 +540,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_2', mPactVerify.verify_info)
+        # print('test_eachlike_base_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike-Term嵌套
@@ -570,7 +569,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_base_2', mPactVerify.verify_info)
+        print('test_eachlike_base_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike-len测试
@@ -591,7 +590,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_base_4', mPactVerify.verify_info)
+        print('test_eachlike_base_4', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike-len测试
@@ -615,7 +614,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_base_5', mPactVerify.verify_info)
+        print('test_eachlike_base_5', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike测试
@@ -633,7 +632,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_base_6', mPactVerify.verify_info)
+        print('test_eachlike_base_6', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     def test_eachlike_base_7(self):
@@ -646,7 +645,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        # print('test_eachlike_base_7', mPactVerify.verify_info)
+        # print('test_eachlike_base_7', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     def test_eachlike_base_8(self):
@@ -659,7 +658,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        print('test_eachlike_base_8', mPactVerify.verify_info)
+        print('test_eachlike_base_8', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike最小长度允许为空
@@ -673,7 +672,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        print('test_eachlike_base_9', mPactVerify.verify_info)
+        print('test_eachlike_base_9', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike最小长度允许为空
@@ -930,7 +929,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        print('test_eachlike_base_10', mPactVerify.verify_info)
+        print('test_eachlike_base_10', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike最小长度允许为空
@@ -944,7 +943,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
 
         mPactVerify.verify(result_1)
-        print('test_eachlike_base_9', mPactVerify.verify_info)
+        print('test_eachlike_base_9', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike单层配置
@@ -961,7 +960,7 @@ class Test(unittest.TestCase):
         # # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_jsonloads_12', mPactVerify.verify_info)
+        print('test_eachlike_jsonloads_12', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike key_missable
@@ -981,7 +980,7 @@ class Test(unittest.TestCase):
         mPactVerify = PactVerify(expected_format)
 
         mPactVerify.verify(result_1)
-        print('test_eachlike_key_missable_13', mPactVerify.verify_info)
+        print('test_eachlike_key_missable_13', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike key_missable
@@ -1006,7 +1005,7 @@ class Test(unittest.TestCase):
         mPactVerify = PactVerify(expected_format)
 
         mPactVerify.verify(result_1)
-        print('test_eachlike_key_missable_14', mPactVerify.verify_info)
+        print('test_eachlike_key_missable_14', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike key_missable
@@ -1018,7 +1017,7 @@ class Test(unittest.TestCase):
         result_1 = []
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_key_missable_14', mPactVerify.verify_info)
+        print('test_eachlike_key_missable_14', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # EachLike key_missable
@@ -1027,7 +1026,7 @@ class Test(unittest.TestCase):
         result_1 = None
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_key_nullable_16', mPactVerify.verify_info)
+        print('test_eachlike_key_nullable_16', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike key_missable
@@ -1040,7 +1039,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_key_nullable_17', mPactVerify.verify_info)
+        print('test_eachlike_key_nullable_17', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike key_missable
@@ -1055,7 +1054,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_key_nullable_18', mPactVerify.verify_info)
+        print('test_eachlike_key_nullable_18', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike key_missable
@@ -1068,7 +1067,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_key_nullable_19', mPactVerify.verify_info)
+        print('test_eachlike_key_nullable_19', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # EachLike key_missable
@@ -1083,7 +1082,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_eachlike_key_nullable_20', mPactVerify.verify_info)
+        print('test_eachlike_key_nullable_20', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # enum校验_1
@@ -1093,7 +1092,7 @@ class Test(unittest.TestCase):
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # enum校验_2
@@ -1103,7 +1102,7 @@ class Test(unittest.TestCase):
 
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_2', mPactVerify.verify_info)
+        print('test_enum_base_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # enum校验_3
@@ -1121,7 +1120,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # enum校验_4
@@ -1139,7 +1138,7 @@ class Test(unittest.TestCase):
         # print(expected_format.generate())
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # enum校验_5
@@ -1156,7 +1155,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_1', mPactVerify.verify_info)
+        print('test_enum_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # enum校验_6
@@ -1173,7 +1172,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_6', mPactVerify.verify_info)
+        print('test_enum_base_6', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # enum校验_7
@@ -1231,7 +1230,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_7', mPactVerify.verify_info)
+        print('test_enum_base_7', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # enum校验_6
@@ -1248,7 +1247,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_base_8', mPactVerify.verify_info)
+        print('test_enum_base_8', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     def test_enum_jsonloads_9(self):
@@ -1264,7 +1263,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_jsonloads_9', mPactVerify.verify_info)
+        print('test_enum_jsonloads_9', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     def test_enum_key_missable_9(self):
@@ -1279,7 +1278,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_key_missable_9', mPactVerify.verify_info)
+        print('test_enum_key_missable_9', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     def test_enum_key_missable_10(self):
@@ -1287,7 +1286,7 @@ class Test(unittest.TestCase):
         result_1 = None
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_key_missable_10', mPactVerify.verify_info)
+        print('test_enum_key_missable_10', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     def test_enum_nullable_11(self):
@@ -1295,7 +1294,7 @@ class Test(unittest.TestCase):
         result_1 = None
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_nullable_11', mPactVerify.verify_info)
+        print('test_enum_nullable_11', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     def test_enum_nullable_12(self):
@@ -1308,7 +1307,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_enum_nullable_12', mPactVerify.verify_info)
+        print('test_enum_nullable_12', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # like_nulable校验
@@ -1320,7 +1319,7 @@ class Test(unittest.TestCase):
         actual_data = {'k1': None}
         mPactVerify = PactVerify(expect_format)
         mPactVerify.verify(actual_data)
-        print('test_like_nulable_1', mPactVerify.verify_info)
+        print('test_like_nulable_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # like_nulable校验
@@ -1329,7 +1328,7 @@ class Test(unittest.TestCase):
         actual_data = None
         mPactVerify = PactVerify(expect_format)
         mPactVerify.verify(actual_data)
-        print('test_like_nulable_2', mPactVerify.verify_info)
+        print('test_like_nulable_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # like_nulable校验
@@ -1350,7 +1349,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expect_format)
         mPactVerify.verify(actual_data)
-        print('test_like_nulable_3', mPactVerify.verify_info)
+        print('test_like_nulable_3', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # like_dict_emptiable校验
@@ -1370,7 +1369,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expect_format)
         mPactVerify.verify(actual_data)
-        print('test_dict_emptiable_1', mPactVerify.verify_info)
+        print('test_dict_emptiable_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # like_dict_emptiable校验
@@ -1393,7 +1392,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expect_format)
         mPactVerify.verify(actual_data)
-        print('test_dict_emptiable_2', mPactVerify.verify_info)
+        print('test_dict_emptiable_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
     # like_dict_emptiable校验
@@ -1408,7 +1407,7 @@ class Test(unittest.TestCase):
         }
         mPactVerify = PactVerify(expect_format)
         mPactVerify.verify(actual_data)
-        print('test_dict_emptiable_3', mPactVerify.verify_info)
+        print('test_dict_emptiable_3', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # keymissable
@@ -1417,7 +1416,7 @@ class Test(unittest.TestCase):
         result_1 = 'aa'
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_keymissable_2', mPactVerify.verify_info)
+        print('test_keymissable_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # keymissable
@@ -1426,7 +1425,7 @@ class Test(unittest.TestCase):
         result_1 = 'aa'
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_keymissable_2', mPactVerify.verify_info)
+        print('test_keymissable_2', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
     # keymissable
@@ -1440,10 +1439,10 @@ class Test(unittest.TestCase):
                 "vin_code": "1FA6P8TH9G5328025",
                 "query_fee": 0.0,
                 "query_status": 0,
-                "description": Like("没有查询到VIN码对应的车辆信息", key_missable=True),
+                "description": Like("没有查询到VIN码对应的车辆信息", key_missable=False),
                 "key_info": Like({
                     "brandName": "路虎", "brandId": "LANDROVER"
-                }, key_missable=True, jsonloads=True),
+                }, key_missable=False, jsonloads=True),
                 "result_id": "0"
             })
         })
@@ -1470,7 +1469,7 @@ class Test(unittest.TestCase):
         }]}
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
-        print('test_keymissable_4', mPactVerify.verify_info)
+        print('test_keymissable_4', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
 

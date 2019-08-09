@@ -3,6 +3,7 @@
 # @Time    : 2019/6/20 19:20
 # @Author  : liuhui
 # @Detail  : unittest用例
+import json
 import unittest, requests, HtmlTestRunner, os
 from pactverify.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
@@ -45,7 +46,8 @@ class PactTest(unittest.TestCase):
         except Exception:
             # 自定义错误信息,输出到HTMLTestRunner中
             err_msg = 'PactVerify_fail,verify_result:{},verify_info:{}'.format(mPactVerify.verify_result,
-                                                                               mPactVerify.verify_info)
+                                                                               json.dumps(mPactVerify.verify_info,
+                                                                                          indent=4))
             self.fail(err_msg)
 
 

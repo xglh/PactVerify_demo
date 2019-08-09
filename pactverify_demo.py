@@ -7,9 +7,9 @@
 from pactverify.matchers import Matcher, Like, EachLike, Term, Enum, PactVerify
 
 # 定义契约格式
-expect_format = Matcher({'k1':'v1'})
+expect_format = Matcher({'k1': 'v1'})
 # 实际数据
-actual_data = {'k1':'v2'}
+actual_data = {'k1': 'v2'}
 # 实例化PactVerify类
 mPactVerify = PactVerify(expect_format)
 # 契约校验
@@ -39,7 +39,7 @@ expect_format_2 = Matcher(1.0)
 # 预期'11'
 expect_format_3 = Matcher('11')
 # 预期返回数据actual为dict结构,actual['k1'] == 'v1'
-expect_format_4 = Matcher({'k1':'v1'})
+expect_format_4 = Matcher({'k1': 'v1'})
 
 expect_format = Like({
     # name字段值类型匹配
@@ -50,19 +50,19 @@ expect_format = Like({
 
 # Matcher: 值匹配
 expect_format = Matcher({
-    "msg": "success",   # msg字段存在,并且msg="success"
-    "code": 200,        # code字段存在,并且code="success"
+    "msg": "success",  # msg字段存在,并且msg="success"
+    "code": 200,  # code字段存在,并且code="success"
     # Enum:枚举匹配
-    'name': Enum(['lili', 'xiaohei']),    # name字段存在,并且name in ['lili', 'xiaohei']
+    'name': Enum(['lili', 'xiaohei']),  # name字段存在,并且name in ['lili', 'xiaohei']
     # Term:正则匹配
     "addr": Term(r'深圳*', example='深圳宝安'),  # name字段存在,并且addr正则匹配深圳*,example为正则表达式测试用str
     # Like:类型匹配
     "config": Like({
-        'carModeCode': '11'    # carModeCode字段存在,并且type('carModeCode') == type('11')
+        'carModeCode': '11'  # carModeCode字段存在,并且type('carModeCode') == type('11')
     }),
     # EachLike: 数组值类型匹配
     "data": EachLike({
-        "type_id": 249,     # type_id字段存在,并且type('type_id') == type(249)
+        "type_id": 249,  # type_id字段存在,并且type('type_id') == type(249)
         "name": "王者荣耀",
         "order_index": 1,
         "status": 1,
@@ -77,7 +77,7 @@ expect_format = Matcher({
         "status": 1,
         "subtitle": " ",
         "game_name": "王者荣耀"
-    }, minimum=2)    # 数组元素最小长度为2
+    }, minimum=2)  # 数组元素最小长度为2
 })
 
 # 实际返回数据
@@ -152,4 +152,3 @@ print(mPactVerify.verify_result)
 	]
 }'''
 print(mPactVerify.verify_info)
-
