@@ -284,18 +284,12 @@ def from_term(term):
 
 class PactVerify:
 
-    def __init__(self, matcher, hard_mode=True):
+    def __init__(self, matcher):
         self.matcher = matcher
-        # 严格匹配：实际key必须与契约可以定义完全一致;key_missable在最下层生效
-        self.hard_mode = hard_mode
-        # 校验数据信息
         self.generate_dict = matcher.generate()
-        # 校验类
         self.verify_result = True
-        # key比expect定义少
-        self.key_less_than_expect_error = []
-        # key比expect定义多
-        self.key_more_than_expect_error = []
+        # key不匹配错误
+        self.key_not_macth_error = []
         # 值不匹配错误
         self.value_not_match_error = []
         # 类型不匹配错误
@@ -330,9 +324,6 @@ class PactVerify:
                     self._check_param_value(target_key, actual_data, contents, nullable=nullable)
                 else:
                     if not self._check_dict_emptiable(actual_data, dict_emptiable):
-                        # 获取expect的所有key
-                        self._check_param_key_hard_mode(target_key, actual_data, self.hard_mode, contents,
-                                                        nullable=nullable)
                         for k, v in contents.items():
                             target_k = target_key
                             if self._check_param_type(target_k, actual_data, dict, nullable=nullable):
@@ -356,9 +347,6 @@ class PactVerify:
                 else:
                     if type(actual_data) == dict:
                         if not self._check_dict_emptiable(actual_data, dict_emptiable):
-                            # 获取expect的所有key
-                            self._check_param_key_hard_mode(target_key, actual_data, self.hard_mode, contents,
-                                                            nullable=nullable)
                             for k, v in contents.items():
                                 # contents非dict类型;contents为dict类型,没有嵌套matcher_json
                                 target_k = '{}.{}'.format(target_key, k)
@@ -505,32 +493,8 @@ class PactVerify:
         else:
             if expect_key not in ['json_class', 'contents', 'min'] and expect_key not in target_data:
                 self.verify_result = check_result = False
-                self._update_key_error(target_key, key_error_type='less')
+                self.key_not_macth_error.append(target_key)
         return check_result
-
-    # hard_mode下检验key_more场景
-    def _check_param_key_hard_mode(self, target_key, target_data, hard_mode, contents: dict, nullable=False):
-        # target_data类型必须为dict
-        # 兼容key_missable和nullable；非次情况下必须为dict结构
-        if not self._check_nullable(target_data, nullable) and self._check_param_type(target_key, target_data,
-                                                                                      dict):
-            # pact占用key
-            pact_keys_set = set(['json_class', 'contents', 'min'])
-            expect_keys_set, actual_keys_set, missable_keys_set = set(), set(), set()
-            for key in contents:
-                value = contents.get(key)
-                # 非key_missable
-                if self._skip_check_param_key(target_key, target_data, value):
-                    missable_keys_set.add(key)
-            expect_keys_set = set([key for key in contents]) - pact_keys_set - missable_keys_set
-            actual_keys_set = set([x[0] for x in target_data.items()]) - pact_keys_set - missable_keys_set
-            actual_key_more_set = actual_keys_set - expect_keys_set
-            # hard_mode下校验key_more场景
-            if hard_mode and len(actual_key_more_set) > 0:
-                self.verify_result = False
-                for actual_key in actual_key_more_set:
-                    target_k = '{}.{}'.format(target_key, actual_key)
-                    self._update_key_error(target_k, key_error_type='more')
 
     # 校验参数值
     def _check_param_value(self, target_key, target_data, expect_value, regex_mode=False, nullable=False):
@@ -582,17 +546,10 @@ class PactVerify:
         }
         self.type_not_match_error.append(temp)
 
-    # 更新key类型错误,默认错误类型为key_less_than_expect_error
-    def _update_key_error(self, expect_key, key_error_type='less'):
+    # 更新key类型错误
+    def _update_key_error(self, expect_key):
         self.verify_result = False
-        target_error_key_list = []
-        if key_error_type == 'more':
-            target_error_key_list = self.key_more_than_expect_error
-        elif key_error_type == 'less':
-            target_error_key_list = self.key_less_than_expect_error
-
-        if expect_key not in target_error_key_list:
-            target_error_key_list.append(expect_key)
+        self.key_not_macth_error.append(expect_key)
 
     # 更新vaule类型错误
     def _update_vaule_error(self, target_key, target_data, expect_value, regex_mode=False):
@@ -616,7 +573,7 @@ class PactVerify:
         self.verify_result = False
         temp = {
             'actual_key': target_key,
-            'actual_len': len(target_data),
+            'actual_value': target_data,
             'min_len': len_min
         }
         self.list_len_not_match_error.append(temp)
@@ -645,11 +602,8 @@ class PactVerify:
     @property
     def verify_info(self):
         info = {}
-        if len(self.key_less_than_expect_error) > 0:
-            info['key_less_than_expect_error'] = self.key_less_than_expect_error
-
-        if len(self.key_more_than_expect_error) > 0:
-            info['key_more_than_expect_error'] = self.key_more_than_expect_error
+        if len(self.key_not_macth_error) > 0:
+            info['key_not_macth_error'] = self.key_not_macth_error
 
         if len(self.value_not_match_error) > 0:
             info['value_not_match_error'] = self.value_not_match_error

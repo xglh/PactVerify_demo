@@ -20,7 +20,7 @@ class Test(unittest.TestCase):
             'age_2': 'aaa'
         }
 
-        mPactVerify = PactVerify(expected_format)
+        mPactVerify = PactVerify(expected_format, hard_mode=False)
         mPactVerify.verify(result_1)
         print('test_matcher_base_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
@@ -122,7 +122,7 @@ class Test(unittest.TestCase):
             'data': {},
             'age_2': 'aaa'
         }
-        mPactVerify = PactVerify(expected_format)
+        mPactVerify = PactVerify(expected_format, hard_mode=False)
         mPactVerify.verify(result_2)
         print('test_matcher_dict_emptiable_7', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
@@ -1487,7 +1487,7 @@ class Test(unittest.TestCase):
                                 "rightsLevelGrowthMax": 0,
                                 "currentLevelValue": 0,
                                 "isCurrentLevel": True,
-                                "isNextGrowthLevel": 0,    # 把这里改成int值
+                                "isNextGrowthLevel": 0,  # 把这里改成int值
                                 "rightDetail": EachLike(
                                     {
                                         "name": "string",
@@ -1530,6 +1530,134 @@ class Test(unittest.TestCase):
         mPactVerify.verify(result_1)
         print('test_error_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
+
+    # hard_mode
+    def test_hard_mode_1(self):
+        expected_format = Like({
+            'k1': 'v1',
+            'k3': Like('v3', key_missable=True),
+            'k4': Like({
+                'v41': 11
+            }),
+            'k5': Like({
+                'v51': 11
+            }, dict_emptiable=True),
+            'k6': Like('v6', nullable=True)
+        })
+        result_1 = {
+            'k1': 'v1',
+            'k2': 'v2',
+            'k4': {
+                'v41': 22
+            },
+            'k5': {},
+            'k6': 11
+        }
+        # hard_mode=True,实际返回字段与契约定义字段要完全一致；hard_mode=False,实际返回字段可多于契约定义字段
+        mPactVerify = PactVerify(expected_format, hard_mode=True)
+        mPactVerify.verify(result_1)
+        print('test_hard_mode_1', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == False
+
+    # hard_mode
+    def test_hard_mode_2(self):
+        expected_format = Like({
+            'k1': 'v1',
+            'k3': 'v3',
+            'k4': Like({
+                'v41': 11
+            })
+        })
+        result_1 = {
+            'k1': 'v1',
+            'k2': 'v2',
+            'k4': 'v4'
+        }
+        # hard_mode=True,实际返回字段与契约定义字段要完全一致；hard_mode=False,实际返回字段可多于契约定义字段
+        mPactVerify = PactVerify(expected_format, hard_mode=True)
+        mPactVerify.verify(result_1)
+        print('test_hard_mode_2', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == False
+
+    # hard_mode
+    def test_hard_mode_3(self):
+        expected_format = Matcher({
+            'k1': Matcher('v1', key_missable=True),
+            'k4': EachLike({
+                'v41': 11
+            })
+        })
+        result_1 = {
+            'k2': 'v1',
+            'k4': [{
+                'v42': 11
+            }]
+        }
+        # hard_mode=True,实际返回字段与契约定义字段要完全一致；hard_mode=False,实际返回字段可多于契约定义字段
+        mPactVerify = PactVerify(expected_format, hard_mode=True)
+        mPactVerify.verify(result_1)
+        print('test_hard_mode_3', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == False
+
+    # hard_mode
+    def test_hard_mode_4(self):
+        expected_format = Like({
+            'k1': 'v1',
+
+        })
+        result_1 = {
+            'k2': Term('^\d{2}$', 22),
+            'k3': Enum([11, 22, 33]),
+            'k4': EachLike(11),
+            'k5': Like(11)
+
+        }
+        # hard_mode=True,实际返回字段与契约定义字段要完全一致；hard_mode=False,实际返回字段可多于契约定义字段
+        mPactVerify = PactVerify(expected_format, hard_mode=True)
+        mPactVerify.verify(result_1)
+        print('test_hard_mode_4', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == False
+
+    # hard_mode
+    def test_hard_mode_5(self):
+        expected_format = Like({
+            'k1': 'v1',
+            'k3': Like('v3', key_missable=True),
+            'k4': Like({
+                'v41': 11
+            }),
+            'k5': Like({
+                'v51': 11
+            }, dict_emptiable=True),
+            'k6': Like('v6', nullable=True),
+            'k7': Like({
+                'v71': 11
+            }, jsonloads=True),
+            'k8': EachLike(11),
+            'k9': Term('^\d{2}$', example=22),
+            'k10': Enum([11, 22, 33], iterate_list=True)
+        })
+        result_1 = {
+            'k1': 'v1',
+            # 'k2': 'v2',
+            'k4': {
+                'v41': 22
+            },
+            'k5': {},
+            'k6': None,
+            'k7': "{\"v71\":33}",
+            'k8': [22],
+            'k9': 33,
+            'k10': [11, 22]
+
+        }
+
+        # 默认hard_mode=True,实际返回字段与契约定义字段要完全一致；hard_mode=False,实际返回字段可多于契约定义字段
+        mPactVerify = PactVerify(expected_format, hard_mode=True)
+        mPactVerify.verify(result_1)
+        print('test_hard_mode_5', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == True
+
 
 if __name__ == '__main__':
     unittest.main()
