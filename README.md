@@ -49,6 +49,10 @@
 -------------
 
 ## 三.基本使用
+### 安装：  
+```python
+pip install pactverify
+```
 ### 示例：
 ```python
 from pactverify.matchers import Matcher, Like, EachLike, Enum, Term, PactVerify
