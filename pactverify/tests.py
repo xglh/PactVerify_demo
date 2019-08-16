@@ -1310,6 +1310,22 @@ class Test(unittest.TestCase):
         print('test_enum_nullable_12', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == False
 
+    def test_enum_iterate_list_13(self):
+        expected_format = Like({
+            'code': 0,
+            'msg': 'success',
+            'data': Enum([11, 22, 33], iterate_list=True)
+        })
+        result_1 = {
+            'code': 0,
+            'msg': 'success',
+            'data': []
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_enum_iterate_list_13', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == True
+
     # like_nulable校验
     def test_like_nulable_1(self):
         expect_format = Like({

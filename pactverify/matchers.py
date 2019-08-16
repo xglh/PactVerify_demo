@@ -432,7 +432,9 @@ class PactVerify:
                 expect_enum, iterate_list = contents, generate_dict.get(iterate_list_key, False)
                 if not self._check_nullable(actual_data, nullable):
                     # 遍历目标数组中的元素
-                    if iterate_list and self._check_param_type(target_key, actual_data, list):
+                    if iterate_list and self._check_param_type(target_key, actual_data,
+                                                               list) and self._check_param_list_len(target_key,
+                                                                                                    actual_data, 1):
                         for i, v in enumerate(actual_data):
                             target_k = '{}.{}'.format(target_key, i)
                             self._check_enum_element(target_k, v, expect_enum)
