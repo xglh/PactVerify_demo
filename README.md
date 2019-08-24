@@ -305,13 +305,13 @@ expect_format = Like({'k1': 'v1'},dict_emptiable=True)
 >**备注：dict_emptiable在hard_mode = True时也生效**  
 ### 5.3 json格式字符串匹配  
 ```python
-# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.dumps再校验
+# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.loads再校验
 expect_format = Matcher({'k1':'v1'},jsonloads = True)
-# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.dumps再校验
+# actual为"{\"k1\":\"v1\"}"json字符串格式时，先进行json.loads再校验
 expect_format = Like({'k1': 'v1'},jsonloads = True)
-# actual为"[{\"k1\":\"v1\"}]"json字符串格式时，先进行json.dumps再校验
+# actual为"[{\"k1\":\"v1\"}]"json字符串格式时，先进行json.loads再校验
 expect_format = EachLike({'k1': 'v1'}, jsonloads = True)
-# actual为"[11,22]"json字符串格式时，先进行json.dumps再校验
+# actual为"[11,22]"json字符串格式时，先进行json.loads再校验
 expected_format = Enum([11, 22],jsonloads = True)
 
 ```
