@@ -38,17 +38,14 @@ class PactTest(unittest.TestCase):
         })
 
         mPactVerify = PactVerify(config_contract_format)
+        actual_rsp_json = config_rsp.json()
+        mPactVerify.verify(actual_rsp_json)
 
-        try:
-            actual_rsp_json = config_rsp.json()
-            mPactVerify.verify(actual_rsp_json)
-            assert mPactVerify.verify_result == True
-        except Exception:
-            # 自定义错误信息,输出到HTMLTestRunner中
-            err_msg = 'PactVerify_fail,verify_result:{},verify_info:{}'.format(mPactVerify.verify_result,
-                                                                               json.dumps(mPactVerify.verify_info,
-                                                                                          indent=4))
-            self.fail(err_msg)
+        err_msg = 'PactVerify_fail,verify_result:{},verify_info:{}'.format(mPactVerify.verify_result,
+                                                                           json.dumps(mPactVerify.verify_info,
+                                                                                      indent=4))
+
+        assert mPactVerify.verify_result == False, err_msg
 
 
 if __name__ == '__main__':

@@ -1674,6 +1674,723 @@ class Test(unittest.TestCase):
         print('test_hard_mode_5', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
+    # hard_mode
+    def test_hard_mode_6(self):
+        expect_format = EachLike({
+            "date": "2018-01-01",
+            "companyId": 11,
+            "userLoginId": "mjqflwf",
+            "amount": -437.00,
+            "orderSize": 1
+        }, minimum=0)
+
+        result_1 = [{
+            'date': '2019-01-01',
+            'companyId': '0cq3QTd6hzczDEQG6iX',
+            'userLoginId': 'sz_szsmbqcfwyxgs',
+            'amount': -300.0,
+            'orderSize': 1
+        }, {
+            'date': '2019-01-01',
+            'companyId': '10131',
+            'userLoginId': 'OZXZS',
+            'amount': -5160.0,
+            'orderSize': 1
+        }
+        ]
+
+        # hard_mode=True,实际返回字段与契约定义字段要完全一致；hard_mode=False,实际返回字段可多于契约定义字段
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(result_1)
+        print('test_hard_mode_6', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == True
+
+    # hard_mode
+    def test_example_1(self):
+        expect_format = Like({
+            "message": "查询成功",
+            "success": True,
+            "statusCode": 200,
+            "data": EachLike({
+                "oeName": Like("大灯 双氙气灯 右", key_missable=True),
+                "info": Like("", key_missable=True),
+                "oeCodeTrim": Like("63117271912", key_missable=True),
+                "oeId": Like("402221", key_missable=True),
+                "count": Like("1", key_missable=True),
+                "catName": Like("车灯", key_missable=True),
+                "catCode": Like("63", key_missable=True),
+                "isGeneral": 0,  #
+                "parentIdList": [],  #
+                "exactSearch": False,  #
+                "isShow": Like("Y", key_missable=True),
+                "parentCatCode": Like("63_1573", key_missable=True),
+                "parentCatName": Like("车灯", key_missable=True),
+                "priceDate": 0,  #
+                "vehicleBrandAll": False,  #
+                "extendedProp": Like({
+                    "product_period": "_201309",
+                    "AE": ""
+                }, key_missable=True),
+                "shieldOeCode": False,  #
+                "price4s": Like("12397.74", key_missable=True),
+                "price": 0,  #
+                "stdName": Like("车灯", key_missable=True),
+                "oeCode": Like("63 11 7 271 912", key_missable=True),
+                "tranformName": Like("车灯", key_missable=True),
+            })
+            ,
+            "extendedPropName": Like({
+                "product_period": "生产起止日期",
+                "AE": "AE"
+            })
+        })
+
+        result_1 = {
+            "message": "查询成功",
+            "success": True,
+            "statusCode": 200,
+            "data": [
+                {
+                    "oeName": "大灯 双氙气灯 右",
+                    "info": "",
+                    "oeCodeTrim": "63117271912",
+                    "oeId": "402221",
+                    "count": "1",
+                    "catName": "车灯",
+                    "catCode": "63",
+                    "isGeneral": 0,
+                    "parentIdList": [],
+                    "exactSearch": False,
+                    "isShow": "Y",
+                    "parentCatCode": "63_1573",
+                    "parentCatName": "大灯",
+                    "priceDate": 0,
+                    "vehicleBrandAll": False,
+                    "extendedProp": {
+                        "product_period": "_201309",
+                        "AE": ""
+                    },
+                    "shieldOeCode": False,
+                    "price4s": "12397.74",
+                    "price": 0,
+                    "stdName": "右大灯",
+                    "oeCode": "63 11 7 271 912"
+                },
+                {
+                    "oeName": "大灯 双氙气灯 左",
+                    "info": "",
+                    "oeCodeTrim": "63117271911",
+                    "oeId": "402220",
+                    "count": "1",
+                    "catName": "车灯",
+                    "catCode": "63",
+                    "isGeneral": 0,
+                    "parentIdList": [],
+                    "exactSearch": False,
+                    "isShow": "Y",
+                    "parentCatCode": "63_1573",
+                    "parentCatName": "大灯",
+                    "priceDate": 0,
+                    "vehicleBrandAll": False,
+                    "extendedProp": {
+                        "product_period": "_201309",
+                        "AE": ""
+                    },
+                    "shieldOeCode": False,
+                    "price4s": "12397.74",
+                    "price": 0,
+                    "stdName": "左大灯",
+                    "oeCode": "63 11 7 271 911"
+                },
+                {
+                    "isGeneral": 0,
+                    "parentIdList": [],
+                    "exactSearch": True,
+                    "priceDate": 0,
+                    "tranformName": "大灯",
+                    "vehicleBrandAll": False,
+                    "shieldOeCode": False,
+                    "price": 0
+                }
+            ],
+            "extendedPropName": {
+                "product_period": "生产起止日期",
+                "AE": "AE"
+            }
+        }
+
+        # hard_mode=True,实际返回字段与契约定义字段要完全一致；hard_mode=False,实际返回字段可多于契约定义字段
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(result_1)
+        print('test_example_1', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == True
+
+    def test_example_2(self):
+        expect_format = Like({
+            "code": 0,
+            "message": "操作成功",
+            "data": EachLike({
+                "id": "1",
+                "menu_code": "routes",
+                "menu_name": "路由",
+                "module_id": 57,
+                "menu_type": "dir",
+                "menu_order": 1,
+                "menu_show": 0,
+                "menu_path": "/main",
+                "parent_id": "-1",
+                "sub_menu_list": EachLike({
+                    "id": "3",
+                    "menu_code": "serve",
+                    "menu_name": "工单",
+                    "module_id": 57,
+                    "menu_type": "dir",
+                    "menu_order": 2,
+                    "menu_show": 1,
+                    "menu_path": "/main/serve",
+                    "parent_id": "1",
+                    "icon": "inventory",
+                    "menu_target": Like('', key_missable=True),
+                    "sub_menu_list": EachLike({
+                        "id": "4",
+                        "menu_code": "serve_manage",
+                        "menu_name": "工单管理",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": Like("/Main/serve/ReceivingCarTicketList", key_missable=True),
+                        "menu_order": 1,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/manage",
+                        "parent_id": "54"
+                    }, key_missable=True
+                    )
+                }, key_missable=True
+                )
+            }
+            )
+        })
+
+        result_1 = {
+            "code": 0,
+            "message": "操作成功",
+            "data": [{
+                "id": "1",
+                "menu_code": "routes",
+                "menu_name": "路由",
+                "module_id": 57,
+                "menu_type": "dir",
+                "menu_order": 1,
+                "menu_show": 0,
+                "menu_path": "/main",
+                "parent_id": "-1",
+                "sub_menu_list": [{
+                    "id": "2",
+                    "menu_code": "index",
+                    "menu_name": "首页",
+                    "module_id": 57,
+                    "menu_type": "link",
+                    "menu_order": 1,
+                    "menu_show": 1,
+                    "menu_path": "/main/index",
+                    "parent_id": "1",
+                    "icon": "home"
+                }, {
+                    "id": "3",
+                    "menu_code": "serve",
+                    "menu_name": "工单",
+                    "module_id": 57,
+                    "menu_type": "dir",
+                    "menu_order": 2,
+                    "menu_show": 1,
+                    "menu_path": "/main/serve",
+                    "parent_id": "1",
+                    "icon": "inventory",
+                    "sub_menu_list": [{
+                        "id": "4",
+                        "menu_code": "serve_manage",
+                        "menu_name": "工单管理",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/serve/ReceivingCarTicketList",
+                        "menu_order": 1,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/manage",
+                        "parent_id": "3"
+                    }, {
+                        "id": "5",
+                        "menu_code": "serve_create",
+                        "menu_name": "新建开单",
+                        "module_id": 57,
+                        "menu_type": "link",
+                        "menu_order": 2,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/create",
+                        "parent_id": "3"
+                    }, {
+                        "id": "6",
+                        "menu_code": "serve_workshop",
+                        "menu_name": "车间管理",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/serve/WorkShop",
+                        "menu_order": 3,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/workshop",
+                        "parent_id": "3"
+                    }, {
+                        "id": "7",
+                        "menu_code": "serve_invoiceRecord",
+                        "menu_name": "单据记录",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/serve/recordlist",
+                        "menu_order": 4,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/invoiceRecord",
+                        "parent_id": "3"
+                    }, {
+                        "id": "8",
+                        "menu_code": "serve_spectaculars",
+                        "menu_name": "客户看板",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/serve/CustomerBoard",
+                        "menu_order": 5,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/spectaculars",
+                        "parent_id": "3"
+                    }, {
+                        "id": "9",
+                        "menu_code": "serve_discountApprove",
+                        "menu_name": "折扣审批",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/serve/DiscountApproveList",
+                        "menu_order": 6,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/discountApprove",
+                        "parent_id": "3"
+                    }, {
+                        "id": "10",
+                        "menu_code": "serve_ReservationRecord",
+                        "menu_name": "预约记录",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/serve/datelist",
+                        "menu_order": 7,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/ReservationRecord",
+                        "parent_id": "3"
+                    }, {
+                        "id": "11",
+                        "menu_code": "serve_insureMng",
+                        "menu_name": "保险管理",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/member/InsuranceInfo",
+                        "menu_order": 8,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/insureMng",
+                        "parent_id": "3"
+                    }, {
+                        "id": "12",
+                        "menu_code": "serve_pickCar",
+                        "menu_name": "视频接车",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/serve/WorkshopCameraServircrecordList",
+                        "menu_order": 9,
+                        "menu_show": 1,
+                        "menu_path": "/main/serve/pickCar",
+                        "parent_id": "3"
+                    }, {
+                        "id": "92",
+                        "menu_code": "serve_info",
+                        "menu_name": "工单详情",
+                        "module_id": 57,
+                        "menu_type": "link",
+                        "menu_order": 10,
+                        "menu_show": 0,
+                        "menu_path": "/main/serve/info",
+                        "parent_id": "3"
+                    }, {
+                        "id": "13",
+                        "menu_code": "serve_detail",
+                        "menu_name": "工单详情",
+                        "module_id": 57,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/serve/detail",
+                        "menu_order": 11,
+                        "menu_show": 0,
+                        "menu_path": "/main/serve/:id",
+                        "parent_id": "3"
+                    }
+                    ]
+                }, {
+                    "id": "14",
+                    "menu_code": "customer",
+                    "menu_name": "客户",
+                    "module_id": 18,
+                    "menu_type": "dir",
+                    "menu_order": 3,
+                    "menu_show": 1,
+                    "menu_path": "/main/customer",
+                    "parent_id": "1",
+                    "icon": "customer",
+                    "sub_menu_list": [{
+                        "id": "15",
+                        "menu_code": "customer_add",
+                        "menu_name": "新建客户",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_order": 2,
+                        "menu_show": 1,
+                        "menu_path": "/main/customer/add",
+                        "parent_id": "14"
+                    }, {
+                        "id": "16",
+                        "menu_code": "customer_list",
+                        "menu_name": "客户车辆",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_order": 3,
+                        "menu_show": 1,
+                        "menu_path": "/main/customer/list",
+                        "parent_id": "14"
+                    }, {
+                        "id": "17",
+                        "menu_code": "customer_info",
+                        "menu_name": "客户详情",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_order": 4,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/info",
+                        "parent_id": "14"
+                    }, {
+                        "id": "18",
+                        "menu_code": "customer_businessMng",
+                        "menu_name": "商机管理",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_order": 5,
+                        "menu_show": 1,
+                        "menu_path": "/main/customer/businessMng",
+                        "parent_id": "14"
+                    }, {
+                        "id": "19",
+                        "menu_code": "customer_service",
+                        "menu_name": "客情维护",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_order": 6,
+                        "menu_show": 1,
+                        "menu_path": "/main/customer/service",
+                        "parent_id": "14"
+                    }, {
+                        "id": "20",
+                        "menu_code": "customer_feedback",
+                        "menu_name": "车主评价",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_order": 7,
+                        "menu_show": 1,
+                        "menu_path": "/main/customer/feedback",
+                        "parent_id": "14"
+                    }, {
+                        "id": "21",
+                        "menu_code": "customer_analyze",
+                        "menu_name": "统计分析",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_order": 8,
+                        "menu_show": 1,
+                        "menu_path": "/main/customer/analyze",
+                        "parent_id": "14"
+                    }, {
+                        "id": "22",
+                        "menu_code": "customer_businessDetail",
+                        "menu_name": "商机详情",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_order": 9,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/businessDetail/:cid?/:id?",
+                        "parent_id": "14"
+                    }, {
+                        "id": "23",
+                        "menu_code": "customer_buyCard",
+                        "menu_name": "购买套餐",
+                        "module_id": 18,
+                        "menu_type": "link",
+                        "menu_target": "/Main/member/BuyVippackage",
+                        "menu_order": 10,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/buyCard",
+                        "parent_id": "14"
+                    }, {
+                        "id": "24",
+                        "menu_code": "customer_buyRechargCard",
+                        "menu_name": "购买储值卡",
+                        "module_id": 18,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/member/BuyVipRechargeCard",
+                        "menu_order": 11,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/buyCard",
+                        "parent_id": "14"
+                    }, {
+                        "id": "25",
+                        "menu_code": "customer_buyVipCard",
+                        "menu_name": "购买VIP卡",
+                        "module_id": 18,
+                        "menu_type": "ori_link",
+                        "menu_target": "/main/customer/buyVipCard",
+                        "menu_order": 12,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/buyCard",
+                        "parent_id": "14"
+                    }, {
+                        "id": "26",
+                        "menu_code": "customer_packageSetting",
+                        "menu_name": "套餐设置",
+                        "module_id": 18,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/system/VipPackageTemplate",
+                        "menu_order": 13,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/cardSetting",
+                        "parent_id": "14"
+                    }, {
+                        "id": "27",
+                        "menu_code": "customer_packageDetail",
+                        "menu_name": "套餐明细",
+                        "module_id": 18,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/member/VipPackageDetail",
+                        "menu_order": 14,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/cardDetail",
+                        "parent_id": "14"
+                    }, {
+                        "id": "28",
+                        "menu_code": "customer_rechargeCardSetting",
+                        "menu_name": "储值卡设置",
+                        "module_id": 18,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/system/VipRechargecardTemplate",
+                        "menu_order": 15,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/rechargeCardSetting",
+                        "parent_id": "14"
+                    }, {
+                        "id": "29",
+                        "menu_code": "customer_rechargeCardDetail",
+                        "menu_name": "储值卡明细",
+                        "module_id": 18,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/member/RechargeCardDetail",
+                        "menu_order": 16,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/rechargeDetail",
+                        "parent_id": "14"
+                    }, {
+                        "id": "30",
+                        "menu_code": "customer_vipCardSetting",
+                        "menu_name": "VIP卡设置",
+                        "module_id": 18,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/system/VipLevelCardTemplate",
+                        "menu_order": 17,
+                        "menu_show": 0,
+                        "menu_path": "/main/customer/vipCardSetting",
+                        "parent_id": "14"
+                    }
+                    ]
+                }, {
+                    "id": "31",
+                    "menu_code": "stock",
+                    "menu_name": "库存",
+                    "module_id": 60,
+                    "menu_type": "dir",
+                    "menu_order": 4,
+                    "menu_show": 1,
+                    "menu_path": "/main/stock",
+                    "parent_id": "1",
+                    "icon": "inventory",
+                    "sub_menu_list": [{
+                        "id": "32",
+                        "menu_code": "stock_fittingsMng",
+                        "menu_name": "配件管理",
+                        "module_id": 60,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/stock/InventoryBalanceList",
+                        "menu_order": 1,
+                        "menu_show": 1,
+                        "menu_path": "/main/stock/fittingsMng",
+                        "parent_id": "31"
+                    }, {
+                        "id": "33",
+                        "menu_code": "stock_inboundMng",
+                        "menu_name": "入库管理",
+                        "module_id": 60,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/stock/InoutticketList?type=1",
+                        "menu_order": 2,
+                        "menu_show": 1,
+                        "menu_path": "/main/stock/inboundMng",
+                        "parent_id": "31"
+                    }, {
+                        "id": "34",
+                        "menu_code": "stock_allotMng",
+                        "menu_name": "调拨管理",
+                        "module_id": 60,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/stock/TransFerList",
+                        "menu_order": 3,
+                        "menu_show": 1,
+                        "menu_path": "/main/stock/allotMng",
+                        "parent_id": "31"
+                    }, {
+                        "id": "35",
+                        "menu_code": "stock_inventoryCheck",
+                        "menu_name": "库存盘点",
+                        "module_id": 60,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/stock/Stockcheck",
+                        "menu_order": 3,
+                        "menu_show": 1,
+                        "menu_path": "/main/stock/inventoryCheck",
+                        "parent_id": "31"
+                    }, {
+                        "id": "36",
+                        "menu_code": "stock_assembleList",
+                        "menu_name": "组装/拆卸",
+                        "module_id": 60,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/stock/AssembleList",
+                        "menu_order": 4,
+                        "menu_show": 1,
+                        "menu_path": "/main/stock/assembleList",
+                        "parent_id": "31"
+                    }, {
+                        "id": "37",
+                        "menu_code": "stock_stockReport",
+                        "menu_name": "库存报表",
+                        "module_id": 60,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/stock/StockCycle",
+                        "menu_order": 5,
+                        "menu_show": 1,
+                        "menu_path": "/main/stock/stockReport",
+                        "parent_id": "31"
+                    }
+                    ]
+                }, {
+                    "id": "50",
+                    "menu_code": "report",
+                    "menu_name": "报表",
+                    "module_id": 52,
+                    "menu_type": "ori_link",
+                    "menu_target": "",
+                    "menu_order": 7,
+                    "menu_show": 1,
+                    "menu_path": "/main/report",
+                    "parent_id": "1",
+                    "icon": "report-forms",
+                    "sub_menu_list": [{
+                        "id": "51",
+                        "menu_code": "report_business",
+                        "menu_name": "营业报表",
+                        "module_id": 52,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/finance/RevenueReport",
+                        "menu_order": 1,
+                        "menu_show": 1,
+                        "menu_path": "/main/report/business",
+                        "parent_id": "50"
+                    }, {
+                        "id": "52",
+                        "menu_code": "report_finance",
+                        "menu_name": "财务报表",
+                        "module_id": 52,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/stock/WaitingOutList",
+                        "menu_order": 2,
+                        "menu_show": 1,
+                        "menu_path": "/main/report/finance",
+                        "parent_id": "50"
+                    }, {
+                        "id": "53",
+                        "menu_code": "report_marketing",
+                        "menu_name": "营销报表",
+                        "module_id": 52,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/stock/WaitingOutList",
+                        "menu_order": 3,
+                        "menu_show": 1,
+                        "menu_path": "/main/report/marketing",
+                        "parent_id": "50"
+                    }
+                    ]
+                }, {
+                    "id": "54",
+                    "menu_code": "staff",
+                    "menu_name": "员工",
+                    "module_id": 4,
+                    "menu_type": "dir",
+                    "menu_order": 8,
+                    "menu_show": 1,
+                    "menu_path": "/main/staff",
+                    "parent_id": "1",
+                    "icon": "staff-manage",
+                    "sub_menu_list": [{
+                        "id": "55",
+                        "menu_code": "staff_list",
+                        "menu_name": "员工列表",
+                        "module_id": 39,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/clerk/EmployeeList",
+                        "menu_order": 1,
+                        "menu_show": 1,
+                        "menu_path": "/main/staff/list",
+                        "parent_id": "54"
+                    }, {
+                        "id": "59",
+                        "menu_code": "staff_performance",
+                        "menu_name": "员工绩效",
+                        "module_id": 43,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/clerk/SalesPerformance",
+                        "menu_order": 5,
+                        "menu_show": 1,
+                        "menu_path": "/main/staff/performance",
+                        "parent_id": "54"
+                    }, {
+                        "id": "60",
+                        "menu_code": "staff_salaryReport",
+                        "menu_name": "工资报表",
+                        "module_id": 43,
+                        "menu_type": "ori_link",
+                        "menu_target": "/Main/clerk/SalaryReport",
+                        "menu_order": 5,
+                        "menu_show": 1,
+                        "menu_path": "/main/staff/salaryReport",
+                        "parent_id": "54"
+                    }
+                    ]
+                }
+                ]
+            }
+            ]
+        }
+
+        # hard_mode=True,实际返回字段与契约定义字段要完全一致；hard_mode=False,实际返回字段可多于契约定义字段
+        mPactVerify = PactVerify(expect_format)
+        mPactVerify.verify(result_1)
+        print('test_example_2', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == True
+
 
 if __name__ == '__main__':
     unittest.main()
