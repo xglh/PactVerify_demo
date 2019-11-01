@@ -427,7 +427,6 @@ class PactVerify:
                 regex_str = contents
                 example, type_strict = generate_dict.get('example'), generate_dict.get('type_strict')
                 # example类型校验
-                print(generate_dict)
                 if self._check_param_type(target_key, actual_data, type(example), nullable=nullable,
                                           type_strict=type_strict):
                     self._check_param_value(target_key, actual_data, regex_str, regex_mode=True)
