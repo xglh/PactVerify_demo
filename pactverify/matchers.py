@@ -181,7 +181,7 @@ class Term(Matcher):
     contract, the value `dark` will be returned by the mock service.
     """
 
-    def __init__(self, matcher, example='', key_missable=False, nullable=False):
+    def __init__(self, matcher, example='', key_missable=False, nullable=False, type_strict=True):
         """
         Create a new Term.
 
@@ -195,6 +195,7 @@ class Term(Matcher):
         self.example = example
         self.key_missable = key_missable
         self.nullable = nullable
+        self.type_strict = type_strict
         # Term对象matcher只能为string类型
         valid_types = (six.string_types)
 
@@ -216,7 +217,8 @@ class Term(Matcher):
             'contents': from_term(self.matcher),
             'example': self.example,
             'key_missable': self.key_missable,
-            'nullable': self.nullable
+            'nullable': self.nullable,
+            'type_strict': self.type_strict
         }
 
     def _regex_test(self):
@@ -423,9 +425,11 @@ class PactVerify:
             # Term正则匹配
             elif json_class == 'Term':
                 regex_str = contents
-                example = generate_dict.get('example')
+                example, type_strict = generate_dict.get('example'), generate_dict.get('type_strict')
                 # example类型校验
-                if self._check_param_type(target_key, actual_data, type(example), nullable=nullable):
+                print(generate_dict)
+                if self._check_param_type(target_key, actual_data, type(example), nullable=nullable,
+                                          type_strict=type_strict):
                     self._check_param_value(target_key, actual_data, regex_str, regex_mode=True)
 
             elif json_class == 'Enum':
@@ -476,11 +480,11 @@ class PactVerify:
         return result
 
     # 校验参数类型
-    def _check_param_type(self, target_key, target_data, expect_type, nullable=False):
+    def _check_param_type(self, target_key, target_data, expect_type, nullable=False, type_strict=True):
         check_result = True
         # nullable校验不通过继续校验
         if not self._check_nullable(target_data, nullable):
-            if type(target_data) != expect_type:
+            if type_strict and type(target_data) != expect_type:
                 check_result = False
                 self._update_type_error(target_key, target_data, expect_type)
         # nullable校验通过不继续校验

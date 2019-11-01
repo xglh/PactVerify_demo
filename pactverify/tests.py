@@ -1324,7 +1324,7 @@ class Test(unittest.TestCase):
         mPactVerify = PactVerify(expected_format)
         mPactVerify.verify(result_1)
         print('test_enum_iterate_list_13', json.dumps(mPactVerify.verify_info, indent=4))
-        assert mPactVerify.verify_result == True
+        assert mPactVerify.verify_result == False
 
     # like_nulable校验
     def test_like_nulable_1(self):
@@ -1678,7 +1678,7 @@ class Test(unittest.TestCase):
     def test_hard_mode_6(self):
         expect_format = EachLike({
             "date": "2018-01-01",
-            "companyId": 11,
+            "companyId": "10131",
             "userLoginId": "mjqflwf",
             "amount": -437.00,
             "orderSize": 1
@@ -2389,6 +2389,33 @@ class Test(unittest.TestCase):
         mPactVerify = PactVerify(expect_format)
         mPactVerify.verify(result_1)
         print('test_example_2', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == True
+
+    # keymissable
+    def test_example_3(self):
+        expected_format = Like({
+            'sum': EachLike(1, nullable=True)
+        })
+        result_1 = {
+            "sum": [None, None, None, 3, 6, 1, None]
+        }
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_example_3', json.dumps(mPactVerify.verify_info, indent=4))
+        assert mPactVerify.verify_result == True
+
+    # type_strict
+    def test_term_type_strict_1(self):
+        expected_format = EachLike({
+            'num': Term('^\d+$|^\d+\.\d+$', example=10, type_strict=False)
+        })
+        result_1 = [
+            {'num': 10},
+            {'num': 10.01}
+        ]
+        mPactVerify = PactVerify(expected_format)
+        mPactVerify.verify(result_1)
+        print('test_term_type_strict_1', json.dumps(mPactVerify.verify_info, indent=4))
         assert mPactVerify.verify_result == True
 
 
