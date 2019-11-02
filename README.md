@@ -181,8 +181,10 @@ expect_format_4 = EachLike({'k1': 'v1'}, minimum=0)
 ### 4. Term类  
 #### 校验规则：正则匹配
 ```python
-# 预期r'^\d{2}$'，并且type(actual_data) == type(example)，example也来测试正则表达式
-expect_format_1 = Term(r'^\d{2}$', example=111)
+# 预期r'^\d{2}$'，并且type(actual_data) == type(example)，example也用来测试正则表达式
+expect_format_1 = Term(r'^\d{2}$', example=11)
+# 预期r'^\d{2}$'，example用来测试正则表达式，type_strict = False时跳过对example参数类型校验
+expect_format_1 = Term(r'^\d{2}$', example="11",type_strict = False)
 ```
 
 ### 5. Enum类  
