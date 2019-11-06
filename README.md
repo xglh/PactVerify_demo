@@ -328,8 +328,33 @@ expect_format = Matcher({
             'age': Term(r'^\d{2}$', example=11, key_missable=True),
             'num': Enum([11, 22, 33], key_missable=True)
         })
+        
+# dict_key_missable为true时，允许dict结构中的key不存在，但key不能多(hard_mode=true时)，key存在时正常校验
+expected_format = Matcher({
+    'name': 'lilei',
+    'age': 12,
+    'sex': 'man'
+}, dict_key_missable=True)
+ 
+ 
+# dict_key_missable为true时，允许dict结构中的key不存在，但key不能多(hard_mode=true时)，key存在时正常校验
+expected_format = Like({
+    'name': 'lilei',
+    'age': 12,
+    'sex': 'man'
+}, dict_key_missable=True)
+ 
+ 
+# dict_key_missable为true时，允许dict结构中的key不存在，但key不能多(hard_mode=true时)，key存在时正常校验
+expected_format = EachLike({
+    'name': 'lilei',
+    'age': 12,
+    'sex': 'man'
+}, dict_key_missable=True)
 ```
->**备注：key_missable在hard_mode = True时也生效**  
+>**备注：**  
+>**1. key_missable在hard_mode = True时也生效**  
+>**2. key_missable针对actual_data本身的key，dict_key_missable针对actual_data字典中的key，可以同时生效**  
 
 #### 注意：异常匹配场景越多,代表接口数据格式越不规范
 -------------
