@@ -9,7 +9,8 @@ class Matcher(object):
     json_class_key = 'json_class'
     contents_key = 'contents'
 
-    def __init__(self, matcher, jsonloads=False, dict_emptiable=False, key_missable=False, nullable=False):
+    def __init__(self, matcher, jsonloads=False, dict_emptiable=False, key_missable=False, nullable=False,
+                 dict_key_missable=False):
 
         valid_types = (
             type(None), list, dict, int, float, six.string_types)
@@ -23,8 +24,10 @@ class Matcher(object):
         # matcher类型为dict时，dict_emptiable参数才有效
         if type(self.matcher) == dict:
             self.dict_emptiable = dict_emptiable
+            self.dict_key_missable = dict_key_missable
         else:
             self.dict_emptiable = False
+            self.dict_key_missable = False
         self.nullable = nullable
 
     def generate(self):
@@ -39,7 +42,8 @@ class Matcher(object):
             'jsonloads': self.jsonloads,
             'key_missable': self.key_missable,
             'dict_emptiable': self.dict_emptiable,
-            'nullable': self.nullable
+            'nullable': self.nullable,
+            'dict_key_missable': self.dict_key_missable
         }
         # dict类型
         if type(self.matcher) == dict:
@@ -67,7 +71,7 @@ class EachLike(Matcher):
     with the keys `name` and `text`,
     """
 
-    def __init__(self, matcher, minimum=1, jsonloads=False, key_missable=True, nullable=False):
+    def __init__(self, matcher, minimum=1, jsonloads=False, key_missable=True, nullable=False, dict_key_missable=False):
         """
         Create a new EachLike.
 
@@ -91,6 +95,7 @@ class EachLike(Matcher):
         self.jsonloads = jsonloads
         self.key_missable = key_missable
         self.nullable = nullable
+        self.dict_key_missable = dict_key_missable
 
     def generate(self):
         """
@@ -106,7 +111,8 @@ class EachLike(Matcher):
             'min': self.minimum,
             'jsonloads': self.jsonloads,
             'key_missable': self.key_missable,
-            'nullable': self.nullable
+            'nullable': self.nullable,
+            'dict_key_missable': self.dict_key_missable
         }
 
 
@@ -121,7 +127,8 @@ class Like(Matcher):
     service, instead of a randomly generated value.
     """
 
-    def __init__(self, matcher, nullable=False, dict_emptiable=False, jsonloads=False, key_missable=False):
+    def __init__(self, matcher, nullable=False, dict_emptiable=False, jsonloads=False, key_missable=False,
+                 dict_key_missable=False):
         """
         Create a new SomethingLike.
 
@@ -144,8 +151,10 @@ class Like(Matcher):
         # matcher类型为dict时，dict_emptiable参数才有效
         if type(self.matcher) == dict:
             self.dict_emptiable = dict_emptiable
+            self.dict_key_missable = dict_key_missable
         else:
             self.dict_emptiable = False
+            self.dict_key_missable = False
         self.jsonloads = jsonloads
         self.key_missable = key_missable
 
@@ -163,7 +172,8 @@ class Like(Matcher):
             'nullable': self.nullable,
             'dict_emptiable': self.dict_emptiable,
             'jsonloads': self.jsonloads,
-            'key_missable': self.key_missable
+            'key_missable': self.key_missable,
+            'dict_key_missable': self.dict_key_missable
         }
 
 
@@ -315,6 +325,7 @@ class PactVerify:
         iterate_list_key = 'iterate_list'
 
         jsonloads_key = 'jsonloads'
+        dict_key_missable_key = 'dict_key_missable'
 
         if generate_dict is None:
             generate_dict = self.generate_dict
@@ -322,8 +333,11 @@ class PactVerify:
         json_class, contents = generate_dict.get(json_class_key), generate_dict.get(contents_key)
         jsonloads = generate_dict.get(jsonloads_key, False)
         nullable = generate_dict.get(nullable_key, False)
+        dict_key_missable = generate_dict.get(dict_key_missable_key, False)
+
         # 转化json字符
         go_next, actual_data = self._jsonStr_loads(target_key, actual_data, jsonloads)
+
         if go_next:
             # Matcher严格匹配
             if json_class == 'Matcher':
@@ -343,12 +357,14 @@ class PactVerify:
                                                                   contents.get(k, {})) and self._check_param_key(
                                     target_k,
                                     actual_data,
-                                    k):
+                                    k, dict_key_missable=dict_key_missable):
                                     if type(v) == dict and self._is_matcher_json(v):
                                         target_data, target_generate_dict = actual_data.get(k), v
                                         self.verify(target_data, target_k, target_generate_dict)
                                     else:
-                                        self._check_param_value(target_k, actual_data.get(k), v, nullable=nullable)
+                                        # dict_key_missable为true是跳过key校验
+                                        if not (k not in actual_data and dict_key_missable):
+                                            self._check_param_value(target_k, actual_data.get(k), v, nullable=nullable)
                     # Like校验字段值类型一致
             elif json_class == 'Like':
                 dict_emptiable = generate_dict.get(dict_emptiable_key, False)
@@ -370,13 +386,14 @@ class PactVerify:
                                         if not self._skip_check_param_key(k, actual_data,
                                                                           contents.get(k,
                                                                                        {})) and self._check_param_key(
-                                            target_k, actual_data, k):
+                                            target_k, actual_data, k, dict_key_missable=dict_key_missable):
                                             target_data, target_generate_dict = actual_data.get(k), v
                                             self.verify(target_data, target_k, target_generate_dict)
                                 else:
                                     if not self._skip_check_param_key(k, actual_data,
                                                                       contents.get(k, {})) and self._check_param_key(
-                                        target_k, actual_data, k):
+                                        target_k, actual_data, k, dict_key_missable=dict_key_missable) and not (
+                                            k not in actual_data and dict_key_missable):
                                         self._check_param_type(target_k, actual_data.get(k), type(v),
                                                                nullable=nullable)
                     else:
@@ -399,6 +416,7 @@ class PactVerify:
                                 inner_contents = contents.get(contents_key)
                                 inner_min_len = contents.get('min')
                                 inner_nullable = contents.get('nullable')
+                                inner_dict_key_missable = contents.get('dict_key_missable', False)
                                 if self._check_param_list_len(target_k, inner_data, inner_min_len):
                                     for inner_i, inner_t in enumerate(inner_data):
                                         target_k_inner = '{}.{}'.format(target_k, inner_i)
@@ -406,7 +424,8 @@ class PactVerify:
                                         target_generate_dict = {
                                             'json_class': 'Like',
                                             'contents': inner_contents,
-                                            'nullable': inner_nullable
+                                            'nullable': inner_nullable,
+                                            'dict_key_missable': inner_dict_key_missable
 
                                         }
                                         # 转Like处理
@@ -418,7 +437,8 @@ class PactVerify:
                             target_generate_dict = {
                                 'json_class': 'Like',
                                 'contents': contents,
-                                'nullable': nullable
+                                'nullable': nullable,
+                                'dict_key_missable': dict_key_missable
                             }
                             # 转Like处理
                             self.verify(target_data, target_k, target_generate_dict)
@@ -501,14 +521,15 @@ class PactVerify:
         return result
 
     # 校验参数key
-    def _check_param_key(self, target_key, target_data, expect_key):
+    def _check_param_key(self, target_key, target_data, expect_key, dict_key_missable=False):
         check_result = True
         # target_data非dict类型报type_error
         if type(target_data) != dict:
             check_result = False
             self._update_type_error(target_key, target_data, dict)
         else:
-            if expect_key not in ['json_class', 'contents', 'min'] and expect_key not in target_data:
+            if not dict_key_missable and expect_key not in ['json_class', 'contents',
+                                                            'min'] and expect_key not in target_data:
                 self.verify_result = check_result = False
                 self._update_key_error(target_key, key_error_type='less')
         return check_result
@@ -516,7 +537,7 @@ class PactVerify:
     # hard_mode下检验key_more场景
     def _check_param_key_hard_mode(self, target_key, target_data, hard_mode, contents: dict, nullable=False):
         # target_data类型必须为dict
-        # 兼容key_missable和nullable；非次情况下必须为dict结构
+        # 兼容key_missable和nullable；非此情况下必须为dict结构
         if not self._check_nullable(target_data, nullable) and self._check_param_type(target_key, target_data,
                                                                                       dict):
             # pact占用key
