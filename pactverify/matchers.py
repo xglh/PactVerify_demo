@@ -71,7 +71,7 @@ class EachLike(Matcher):
     with the keys `name` and `text`,
     """
 
-    def __init__(self, matcher, minimum=1, jsonloads=False, key_missable=True, nullable=False, dict_key_missable=False):
+    def __init__(self, matcher, minimum=1, jsonloads=False, key_missable=False, nullable=False, dict_key_missable=False):
         """
         Create a new EachLike.
 
@@ -377,6 +377,7 @@ class PactVerify:
                             # 获取expect的所有key
                             self._check_param_key_hard_mode(target_key, actual_data, self.hard_mode, contents,
                                                             nullable=nullable)
+
                             for k, v in contents.items():
                                 # contents非dict类型;contents为dict类型,没有嵌套matcher_json
                                 target_k = '{}.{}'.format(target_key, k)
