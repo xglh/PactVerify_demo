@@ -638,7 +638,7 @@ class PactVerify:
         return check_result
 
     # 更新type类型错误
-    def _update_type_error(self, target_key, target_data, expect_type, extra_types):
+    def _update_type_error(self, target_key, target_data, expect_type, extra_types=[]):
         self.verify_result = False
         temp = {
             'actual_key': target_key,
