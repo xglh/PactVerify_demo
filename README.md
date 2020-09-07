@@ -352,6 +352,14 @@ expected_format = EachLike({
     'sex': 'man'
 }, dict_key_missable=True)
 ```
+
+### 5.5 多类型匹配  
+```python
+# actual数据为type(11)或type('11'),extra_types可以添加多个示例数据,对基础数据类型(int,float,boolean,str,None)示例有效,对list dict等类型无效
+expect_format = Like(11, extra_types=['11'])
+# actual数据为[type(11)]或[type('11')],extra_types可以添加多个示例数据,对基础数据类型示例(int,float,boolean,str,None)有效,对list dict等类型无效
+expect_format = EachLike(11, extra_types=['11'])
+```
 >**备注：**  
 >**1. key_missable在hard_mode = True时也生效**  
 >**2. key_missable针对actual_data本身的key，dict_key_missable针对actual_data字典中的key，可以同时生效**  

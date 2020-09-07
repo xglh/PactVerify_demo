@@ -3,4 +3,4 @@
 *.xml
 reports/
 __pycache__/
-tests.py
+test*.py
