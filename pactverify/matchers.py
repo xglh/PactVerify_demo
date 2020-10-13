@@ -534,7 +534,8 @@ class PactVerify:
         # nullable校验不通过继续校验
         if not self._check_nullable(target_data, nullable):
             if type_strict and not (
-                    type(target_data) == expect_type or self._check_extra_keys(type(target_data), extra_types)):
+                    self._check_param_type_base(target_data, expect_type) or self._check_extra_keys(target_data,
+                                                                                                    extra_types)):
                 check_result = False
                 self._update_type_error(target_key, target_data, expect_type, extra_types=extra_types)
         # nullable校验通过不继续校验
@@ -542,10 +543,24 @@ class PactVerify:
             check_result = False
         return check_result
 
-    def _check_extra_keys(self, actual_data_type, extra_types):
+    # 检查参数类型基础方法
+    def _check_param_type_base(self, target_data, expect_type):
+        result = True
+
+        # bool为int instance，单独判断
+        if type(target_data) == bool and type(target_data) != expect_type:
+            result = False
+        # int16 int32 int64型数据判断实例类型判断
+        elif not (isinstance(target_data, expect_type) or (
+                type(target_data) in [int, float] and issubclass(expect_type, type(target_data)))):
+            result = False
+        return result
+
+    def _check_extra_keys(self, actual_data, extra_types):
         result = False
         for extra_key in extra_types:
-            if actual_data_type == type(extra_key):
+            extra_type = type(extra_key)
+            if self._check_param_type_base(actual_data, extra_type):
                 result = True
                 break
         return result
