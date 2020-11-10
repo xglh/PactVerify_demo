@@ -4,20 +4,33 @@
 # @Author  : liuhui
 # @Detail  :
 
-from pactverify.matchers import Matcher, Like, EachLike, Enum, Term, PactVerify
+from pactverify.matchers import PactJsonVerify
 
-# 定义契约格式
-expect_format = Matcher({
-    'code': 0,  # code key存在,值相等,code==0
-    'msg': 'success',  # msg key存在,值相等,msg=='success'
-    # [{}]结构
-    'data': EachLike({
-        "type_id": 249,  # type_id key存在,值类型相等,type(type_id) == type(249)
-        "name": "王者荣耀",  # name key存在,值类型相等,type(name) == type("王者荣耀")
-    }),
-    'type': Enum([11,22]),
-    'list': EachLike(11,minimum=2)
-})
+# 定义json契约格式
+expect_format = {
+    '$Matcher': {
+        'code': 0,  # code key存在,值相等,code==0
+        'msg': 'success',  # msg key存在,值相等,msg=='success'
+        # [{}]结构
+        'data': {
+            '$EachLike': {
+                "type_id": 249,  # type_id key存在,值类型相等,type(type_id) == type(249)
+                "name": "王者荣耀",  # name key存在,值类型相等,type(name) == type("王者荣耀")
+            }},
+        'type': {
+            '$Enum': [11, 22]
+        },
+        'list': {
+            '$EachLike': {
+                # $values,$params形式传递额外参数
+                '$values': 11,
+                '$params': {
+                    'minimum': 2
+                }
+            }
+        }
+    }
+}
 
 # 实际返回数据
 actual_data = {
@@ -41,15 +54,15 @@ actual_data = {
     'list': [11]
 }
 # hard_mode默认为true,hard_mode = True时,实际返回key必须严格等于预期key;hard_mode = False时,实际返回key包含预期key即可
-mPactVerify = PactVerify(expect_format, hard_mode=True)
+mPactJsonVerify = PactJsonVerify(expect_format, hard_mode=True)
 # 校验实际返回数据
-mPactVerify.verify(actual_data)
+mPactJsonVerify.verify(actual_data)
 # 校验结果  False
-print(mPactVerify.verify_result)
+print(mPactJsonVerify.verify_result)
 ''' 校验错误信息
 错误信息输出actual_key路径：root.data.0.name形式
 root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
-{
+{   
     # 实际key少于预期key错误
 	'key_less_than_expect_error': ['root.data.1.name'],
 	# 实际key多与预期key错误,只在hard_mode = True时才报该错误
@@ -85,4 +98,4 @@ root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 }
 
 '''
-print(mPactVerify.verify_info)
+print(mPactJsonVerify.verify_info)
