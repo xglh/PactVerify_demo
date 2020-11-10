@@ -79,7 +79,7 @@
 契约定义方式：支持python类契约和json契约
 -------------  
 
-## 三.基本使用 
+## 三.快速使用 
 ### 安装：  
 ```python
 pip install pactverify
