@@ -67,7 +67,7 @@
 
 备注：这里的【契约】等同于接口响应数据结构  
 
--------------
+-------------  
 ## 二.校验原则
 
 >1.实际返回字段要**严格等于**或者**含契约定义字段**(根据不同匹配模式来确定)  
@@ -75,7 +75,7 @@
 
 目标：对返回数据进行**全量(字段名-值/类型)** 校验   
 契约定义方式：支持python类契约和json契约
--------------
+-------------  
 
 ## 三.基本使用
 ### 安装：  
@@ -446,7 +446,7 @@ expect_format_json_4 = {
 
 # 预期[Like{'k1':'v1'}]或[],minimum为数组最小长度,默认minimum=1   python类契约
 expect_format_5 = EachLike({'k1': 'v1'}, minimum=0)
-# 预期[Like{'k1':'v1'}]或[],minimum为数组最小长度,默认minimum=1   python类契约
+# 预期[Like{'k1':'v1'}]或[],minimum为数组最小长度,默认minimum=1   json契约
 expect_format_json_5 = {
     '$EachLike': {
         # $values,$params结构用于额外传参
