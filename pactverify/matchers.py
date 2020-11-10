@@ -437,5 +437,4 @@ class PactJsonVerify(PactVerify):
     def __init__(self, pact_json, hard_mode=True, separator='$'):
         pact_json = pact_json
         matcher = change_pact_json_to_obj(pact_json, separator=separator)
-        print(11111111,matcher)
         super().__init__(matcher, hard_mode=hard_mode)

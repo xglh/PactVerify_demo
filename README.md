@@ -8,15 +8,17 @@
   + 3、python类契约转json契约
   + 4、根据响应结果自动生成json契约
 * 四.基本匹配规则
-  + 1、Matcher类 校验规则：值匹配
-  + 2、Like类 校验规则：类型匹配
-  + 3、EachLike类 校验规则：数组类型匹配
-  + 4、Term类校验规则：正则匹配
-  + 5、Enum类 校验规则：枚举匹配
+  + 1、Matcher类，校验规则：值匹配
+  + 2、Like类，校验规则：类型匹配
+  + 3、EachLike类，校验规则：数组类型匹配
+  + 4、Term类，校验规则：正则匹配
+  + 5、Enum类，校验规则：枚举匹配
 * 五.复杂数据结构匹配规则
   + 1、{{}}格式
   + 2、[[]]格式
   + 3、{[]}格式
+  + 4、Like-Term嵌套
+  + 5、Like-Matcher嵌套
 * 六. 异常场景匹配
   + 1、null匹配
   + 2、{}匹配
@@ -61,7 +63,7 @@
 	]
 }
 
-```
+```  
 
 在研究了[契约测试](https://www.pact.net.cn/documentation/what_is_pact.html)后，抽取[pact-python](https://github.com/pact-foundation/pact-python)部分代码，实现：自定义接口返回数据格式(【契约定义】)-实际响应数据格式校验(【契约校验】)的功能
 
@@ -77,11 +79,11 @@
 契约定义方式：支持python类契约和json契约
 -------------  
 
-## 三.基本使用
+## 三.基本使用 
 ### 安装：  
 ```python
 pip install pactverify
-```  
+``` 
 ### 1.python类契约使用
 ```python
 from pactverify.matchers import Matcher, Like, EachLike, Enum, Term, PactVerify
@@ -166,7 +168,7 @@ root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 
 '''
 print(mPactVerify.verify_info)
-```
+```  
 
 ### 2.json契约使用
 ```python
@@ -265,7 +267,7 @@ root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 }
 '''
 print(mPactJsonVerify.verify_info)
-```
+```  
 ### 3.python类契约转json契约
 ```python
 1、python类契约不带参数
@@ -479,7 +481,7 @@ expect_format_json_2 = {
         '$params': {'example': 11, 'type_strict': False}
     }
 }
-```
+```  
 
 ### 5. Enum类  
 #### 校验规则：枚举匹配
@@ -505,7 +507,7 @@ expected_format_json_2 = {
 
 -------------
 
-## 四.复杂规则匹配
+## 五.复杂规则匹配
 ### 1.{{}}格式
 ```python
 actual_data = {
@@ -540,7 +542,7 @@ expect_format_json = {
 		}
 	}
 }
-```
+```  
 ### 2.[[]]格式
 ```python
 actual_data = [[{
@@ -625,7 +627,7 @@ expect_format = Like({
 })
 
 # json契约
-expect_format = {
+expect_format_json = {
     '$Like': {
         'code': 0,
         'msg': 'success',
@@ -679,7 +681,7 @@ expect_format_json = {
 
 -------------
 
-## 五.异常场景匹配
+## 六.异常场景匹配
 ### 1.null匹配  
 ```python
 # nullable为true时允许返回null，预期null和（actual为dict结构，actual['k1'] == 'v1' or null）形式   python类契约
@@ -781,7 +783,7 @@ expect_format_json = {
 # actual为"[{\"k1\":\"v1\"}]"json字符串格式时，先进行json.loads再校验  python类契约
 expect_format = EachLike({'k1': 'v1'}, jsonloads=True)
 # actual为"[{\"k1\":\"v1\"}]"json字符串格式时，先进行json.loads再校验  json契约
-expect_format = {
+expect_format_json = {
     '$EachLike': {
         '$values': {'k1': 'v1'},
         '$params': {'jsonloads': True}
@@ -920,6 +922,25 @@ expect_format_json = {
         '$params': {'extra_types': ['11']}
     }
 }
+
+```  
+### 6.非强制字段匹配  
+```python
+expect_format = Like({'k1': 'v1'})
+# hard_mode=False只匹配契约中定义的字段，实际返回的多余字段忽略    python类契约
+mPactVerify = PactVerify(expect_format, hard_mode=False)
+actual_data = {'k1': 'v1', 'k2': 'v2'}
+# 只校验k1字段，k2字段忽略
+mPactVerify.verify(actual_data)
+
+expect_format_json = {
+    '$Like': {'k1': 'v1'}
+}
+# hard_mode=False只匹配契约中定义的字段，实际返回的多余字段忽略   json契约
+mPactJsonVerify = PactJsonVerify(expect_format, hard_mode=False)
+actual_data = {'k1': 'v1', 'k2': 'v2'}
+# 只校验k1字段，k2字段忽略
+mPactJsonVerify.verify(actual_data)
 
 ```  
 >**备注：**  
