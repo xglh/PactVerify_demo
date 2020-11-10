@@ -2,26 +2,28 @@
 目录：  
 * 一.背景  
 * 二.校验原则  
-* 三.基本使用  
-  + 【python类契约使用】  
-  + 【json契约使用】 
-  - 1、Matcher类 校验规则：值匹配
-  - 2、Like类 校验规则：类型匹配
-  - 3、EachLike类 校验规则：数组类型匹配
-  - 4、Term类校验规则：正则匹配
-  - 5、Enum类 校验规则：枚举匹配
-* 四.复杂数据结构匹配规则
+* 三.快速使用  
+  + 1、python类契约使用  
+  + 2、json契约使用
+  + 3、python类契约转json契约
+  + 4、根据响应结果自动生成json契约
+* 四.基本匹配规则
+  + 1、Matcher类 校验规则：值匹配
+  + 2、Like类 校验规则：类型匹配
+  + 3、EachLike类 校验规则：数组类型匹配
+  + 4、Term类校验规则：正则匹配
+  + 5、Enum类 校验规则：枚举匹配
+* 五.复杂数据结构匹配规则
   + 1、{{}}格式
   + 2、[[]]格式
   + 3、{[]}格式
-* 五. 异常场景匹配
+* 六. 异常场景匹配
   + 1、null匹配
   + 2、{}匹配
   + 3、json格式字符串匹配
   + 4、key不存在匹配  
   + 5、多类型匹配
   + 6、非强制字段匹配  
-* 六.根据响应结果生成json契约
 * 七.unittest+HTMLTestRunner+契约断言示例
 * 八.优点总结
   
@@ -79,8 +81,8 @@
 ### 安装：  
 ```python
 pip install pactverify
-```
-### 【python类契约使用】
+```  
+### 1.python类契约使用
 ```python
 from pactverify.matchers import Matcher, Like, EachLike, Enum, Term, PactVerify
 
@@ -166,7 +168,7 @@ root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 print(mPactVerify.verify_info)
 ```
 
-### 【json契约使用】
+### 2.json契约使用
 ```python
 from pactverify.matchers import PactJsonVerify
 
@@ -264,11 +266,90 @@ root为根目录,dict类型拼接key,list类型拼接数组下标(从0开始)
 '''
 print(mPactJsonVerify.verify_info)
 ```
+### 3.python类契约转json契约
+```python
+1、python类契约不带参数
+# python类契约
+expect_format = Like({'k1': 'v1'})
+# json契约
+expect_format_json = {
+    '$Like': {'k1': 'v1'}
+}
 
+2、python类契约带参数
+# python类契约
+expect_format = Like({'k1': 'v1'}, nullable=True)
+# json契约
+expect_format_json = {
+    '$Like': {
+        # $values为契约类目标参数
+        '$values': {'k1': 'v1'},
+        # $params为额外参数的json数据
+        '$params': {'nullable': True}
+    }
+}
+```  
+### 4.根据响应结果自动生成json契约
+```python
+from pactverify.utils import generate_pact_json_by_response
+
+if __name__ == '__main__':
+    response_json = {
+        "msg": "success",
+        "code": 0,
+        "data": [{
+            "type_id": 249,
+            "name": "王者荣耀",
+            "order_index": 1,
+            "status": 1,
+            "subtitle": " ",
+            "game_name": "王者荣耀"
+        }, {
+            "type_id": 250,
+            "name": "绝地求生",
+            "order_index": 2,
+            "status": 1,
+            "subtitle": " ",
+            "game_name": "绝地求生"
+        }, {
+            "type_id": 251,
+            "name": "刺激战场",
+            "order_index": 3,
+            "status": 1,
+            "subtitle": " ",
+            "game_name": "刺激战场"
+        }
+        ]
+    }
+    # 参数说明：响应json数据,契约关键字标识符(默认$)
+    pact_json = generate_pact_json_by_response(response_json, separator='$')
+    print(pact_json)
+    '''
+    # 模板生成只会包含$EachLike、$Like,可以根据具体校验需求更改,数组取第一个元素为模板来生成
+    {
+        '$Like': {
+            'msg': 'success',
+            'code': 0,
+            'data': {
+                '$EachLike': {
+                    'type_id': 249,
+                    'name': '王者荣耀',
+                    'order_index': 1,
+                    'status': 1,
+                    'subtitle': ' ',
+                    'game_name': '王者荣耀'
+                }
+            }
+        }
+    }
+    '''
+```  
 ##### 说明：
 >1. PactVerify与PactJsonVerify校验类只是契约数据不同，其他逻辑保持一致
->2. PactJsonVerify关键字标志符可用PactJsonVerify(separator='$')自定义
+>2. PactJsonVerify关键字标志符可用PactJsonVerify(separator='$')自定义 
+-------  
 
+## 四.基本匹配规则
 ### 1. Matcher类  
 #### 校验规则：值匹配
 ```python
@@ -331,7 +412,7 @@ expect_format_4 = Like({'k1':'v1'})
 expect_format_json_4 =  {
     '$Like': {'k1':'v1'}
 }
-```
+```  
 ### 3. EachLike类  
 #### 校验规则：数组类型匹配
 ```python
@@ -374,7 +455,7 @@ expect_format_json_5 = {
     }
 }
 
-```
+```  
 
 ### 4. Term类  
 #### 校验规则：正则匹配
@@ -420,7 +501,7 @@ expected_format_json_2 = {
     }
 }
 
-```
+```  
 
 -------------
 
@@ -459,7 +540,7 @@ expect_format_json = {
 		}
 	}
 }
-```  
+```
 ### 2.[[]]格式
 ```python
 actual_data = [[{
@@ -482,7 +563,7 @@ expect_format_json = {
         }
     }
 }
-```
+```  
 ### 3.{[]}格式
 ```python
 actual_data = {
@@ -521,7 +602,7 @@ expect_format_json = {
     }
 }
 
-```
+```  
 ### 4.Like-Term嵌套
 ```python
 actual_data = {
@@ -563,7 +644,7 @@ expect_format = {
         }
     }
 }
-```
+```  
 ### 5.Like-Matcher嵌套
 ```python
 actual_data = {
@@ -650,7 +731,7 @@ expect_format_json = {
         '$params': {'nullable': True}
     }
 }
-```
+```  
 >**备注：nullable参数在hard_mode = True时也生效**  
 ### 2.{}匹配  
 ```python
@@ -673,7 +754,7 @@ expect_format_json = {
         '$params': {'dict_emptiable': True}
     }
 }
-```
+```  
 >**备注：dict_emptiable在hard_mode = True时也生效**  
 ### 3.json格式字符串匹配  
 ```python
@@ -716,7 +797,7 @@ expected_format_json = {
         '$params': {'jsonloads': True}
     }
 }
-```
+```  
 
 ### 4.key不存在匹配  
 ```python
@@ -816,7 +897,7 @@ expected_format_json = {
         '$params': {'dict_key_missable': True}
     }
 }
-```
+```  
 
 ### 5.多类型匹配  
 ```python
@@ -840,70 +921,14 @@ expect_format_json = {
     }
 }
 
-```
+```  
 >**备注：**  
 >**1. key_missable在hard_mode = True时也生效**  
 >**2. key_missable针对actual_data本身的key，dict_key_missable针对actual_data字典中的key，可以同时生效**  
 
 #### 注意：异常匹配场景越多,代表接口数据格式越不规范
+
 -------------
-
-## 六.根据响应结果生成json契约
-```python
-from pactverify.utils import generate_pact_json_by_response
-
-if __name__ == '__main__':
-    response_json = {
-        "msg": "success",
-        "code": 0,
-        "data": [{
-            "type_id": 249,
-            "name": "王者荣耀",
-            "order_index": 1,
-            "status": 1,
-            "subtitle": " ",
-            "game_name": "王者荣耀"
-        }, {
-            "type_id": 250,
-            "name": "绝地求生",
-            "order_index": 2,
-            "status": 1,
-            "subtitle": " ",
-            "game_name": "绝地求生"
-        }, {
-            "type_id": 251,
-            "name": "刺激战场",
-            "order_index": 3,
-            "status": 1,
-            "subtitle": " ",
-            "game_name": "刺激战场"
-        }
-        ]
-    }
-    # 参数说明：响应json数据,契约关键字标识符(默认$)
-    pact_json = generate_pact_json_by_response(response_json, separator='$')
-    print(pact_json)
-    '''
-    # 模板生成只会包含$EachLike、$Like,可以根据具体校验需求更改,数组取第一个元素为模板来生成
-    {
-        '$Like': {
-            'msg': 'success',
-            'code': 0,
-            'data': {
-                '$EachLike': {
-                    'type_id': 249,
-                    'name': '王者荣耀',
-                    'order_index': 1,
-                    'status': 1,
-                    'subtitle': ' ',
-                    'game_name': '王者荣耀'
-                }
-            }
-        }
-    }
-    '''
-``` 
--------------  
 
 ## 七.配合unittest+requests使用
 ```python
@@ -959,7 +984,7 @@ if __name__ == '__main__':
     suite = unittest.defaultTestLoader.discover(current_dir, pattern="test_*.py")
     runner = HtmlTestRunner.HTMLTestRunner(combine_reports=True, report_name="MyReport", add_timestamp=False)
     runner.run(suite)
-```
+```  
 -------------  
  
 ## 八.优点总结  
