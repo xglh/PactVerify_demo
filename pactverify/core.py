@@ -319,7 +319,7 @@ def from_term(term):
     elif issubclass(term.__class__, (Matcher,)):
         return term.generate()
     else:
-        raise ValueError('Unknown type: %s' % type(term))
+        raise PactVerifyError('Unknown type: %s' % type(term))
 
 
 def change_pact_json_to_obj(pact_json, separator='$'):
@@ -366,9 +366,9 @@ def change_pact_json_to_obj(pact_json, separator='$'):
             res_obj = generate_pactverify_obj(pact_json)
             return res_obj
         else:
-            raise Exception("断言关键字{}暂不支持！".format(pact_json.keys()[0]))
+            raise PactVerifyError("断言关键字{}暂不支持！".format(pact_json.keys()[0]))
     except Exception as e:
-        raise Exception('断言数据格式有误！{}'.format(e))
+        raise PactVerifyError('断言数据格式有误！{}'.format(e))
 
 
 # PactVerify校验异常
