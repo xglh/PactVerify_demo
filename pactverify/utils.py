@@ -2,7 +2,7 @@ import copy
 import json
 from pactverify.core import Like, EachLike
 from pactverify.matchers import PactJsonVerify
-from pactverify.pact2json import pact_like, pact_eachlike, pact_term, pact_enum, pact_matcher
+from pactverify.pact2json3 import pact_like, pact_eachlike, pact_term, pact_enum, pact_matcher
 
 
 def generate_pact_json_by_response(target_data, pactverify_json=None, is_list=False, separator='$'):

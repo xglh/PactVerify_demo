@@ -1,15 +1,85 @@
 import random
-from pactverify.matchers import PactJsonVerify
 from xeger import Xeger
 
+from pactverify.core import PactVerifyError
+
 str_xeger = Xeger(limit=30)
+
+
+class Pact2Json:
+
+    def __init__(self, separator='$'):
+        self.separator = separator
+
+        # pact类key值
+        self.pact_key_matcher = self.separator + 'Matcher'
+        self.pact_key_like = self.separator + 'Like'
+        self.pact_key_eachLike = self.separator + 'EachLike'
+        self.pact_key_enum = self.separator + 'Enum'
+        self.pact_key_term = self.separator + 'Term'
+
+        self.pact_key_values = self.separator + 'values'
+        self.pact_key_params = self.separator + 'params'
+
+        self.json = {}
+
+    def unpack_pact(self, pact_json, parent_json=None):
+        if not parent_json:
+            parent_json = self.json
+
+        if type(pact_json) not in [list, dict]: return
+
+        if type(pact_json) == dict:
+            if self._is_pact_class_json(pact_json):
+                for key, value in pact_json:
+                    if self._is_pact_class_json(value):
+                        raise PactVerifyError('非法pact_json结构:pact类嵌套')
+                    # 抽取values值
+                    if self._is_params_json(value):
+                        target_values = value.get(self.pact_key_values)
+                    else:
+                        target_values = value
+                    if key not in parent_json:
+                        parent_json[key] = {}
+                    self.unpack_pact(target_values, parent_json)
+        else:
+            pass
+
+    def _is_pact_class_json(self, target_pact_json):
+        '''
+        判断是否为pac class结构
+        :param target_pact_json:
+        :return:
+        '''
+        result = False
+        pact_class_keys = [self.pact_key_matcher, self.pact_key_like, self.pact_key_eachLike, self.pact_key_enum,
+                           self.pact_key_term]
+        if type(target_pact_json) == dict:
+            inner_keys = target_pact_json.keys()
+            # 只包含一个key，并且key为
+            if inner_keys.length == 1 and inner_keys[0] in pact_class_keys:
+                result = True
+        return result
+
+    def _is_params_json(self, target_pact_json):
+        '''
+        判断json是否为params_json结构
+        :return:
+        '''
+        result = False
+        pact_params_keys = [self.pact_key_values, self.pact_key_params]
+        if type(target_pact_json) == dict:
+            inner_keys = target_pact_json.keys()
+            if inner_keys.length == 2 and sorted(pact_params_keys) == sorted(inner_keys):
+                result = True
+        return result
 
 
 def generate_char():
     # gbk2312对字符的编码采用两个字节相组合, 第一个字节的范围是0xB0 - 0xF7, 第二个字节的范围是0xA1 - 0xFE.在head区号为55的那一块最后5个汉字是乱码,为了方便缩减下范围
     temp = '{0:x} {1:x}'.format(random.randint(0xb0, 0xf7), random.randint(0xa1, 0xf9))
-    chr = bytes.fromhex(temp).decode('gb2312')
-    return chr
+    char = bytes.fromhex(temp).decode('gb2312')
+    return char
 
 
 def make_data(data_type):
@@ -24,228 +94,6 @@ def make_data(data_type):
     else:
         old_body = data_type
     return old_body
-
-
-def pact_like(dic_json, dic):
-    '''
-    校验规则：类型匹配
-    :param dic_json:
-    :param dic:
-    :return:
-    '''
-    if isinstance(dic_json, dict):
-        for key in dic_json:
-            if isinstance(dic_json[key], dict):
-                for key_down in dic_json[key]:
-                    if key_down == '$Like':
-                        if isinstance(dic_json[key][key_down], dict) and '$values' in dic_json[key][key_down].keys():
-                            dic_json[key] = make_data(dic_json[key][key_down]['$values'])
-                        else:
-                            dic_json[key] = make_data(dic_json[key][key_down])
-                        pact_like(dic_json, dic)
-                    else:
-                        dic[key] = {}
-                        pact_like(dic_json[key], dic[key])
-            elif isinstance(dic_json[key], (list, tuple)):
-                new_key = []
-                for key_down in dic_json[key]:
-                    new_dic = {}
-                    pact_like(key_down, new_dic)
-                    if new_dic:
-                        new_key.append(new_dic)
-                    else:
-                        new_key.append(key_down)
-                dic[key] = new_key
-            else:
-                if key not in ['$Matcher', '$values', '$params', '$EachLike', '$Enum', '$Term',
-                               'iterate_list', 'key_missable', 'nullable', 'dict_emptiable', 'jsonloads' 'example',
-                               'Term',
-                               'minimum', 'extra_types']:
-                    dic[key] = make_data(dic_json[key])
-                else:
-                    dic[key] = dic_json[key]
-
-    return dic
-
-
-def pact_eachlike(dic_json, dic):
-    '''
-    校验规则：数组类型匹配
-        EachLike 下的项目 如果没有特定，都按LIke实现
-    :param dic_json:
-    :param dic:
-    :return:
-    '''
-    if isinstance(dic_json, dict):
-        for key in dic_json:
-            if isinstance(dic_json[key], dict):
-                if key == '$EachLike':
-                    dic = [dic_json[key]]
-                    return dic
-                else:
-                    for key_down in dic_json[key]:
-                        if key_down == '$EachLike':
-                            ruest_EachLike = []
-                            minimum = 1
-                            if isinstance(dic_json[key][key_down], dict) and '$values' in dic_json[key][
-                                key_down].keys():
-                                # 判断是否带参数
-                                if '$params' in dic_json[key][key_down].keys():
-                                    if 'minimum' in dic_json[key][key_down]['$params'].keys():
-                                        minimum = dic_json[key][key_down]['$params']['minimum']
-                                old_body = dic_json[key][key_down]['$values']
-                                for x in range(random.randint(minimum, 10)):
-                                    if isinstance(dic_json[key][key_down]['$values'], dict):
-                                        EachLike_dic = {}
-                                        pact_like(old_body, EachLike_dic)
-                                    else:
-                                        EachLike_dic = make_data(dic_json[key][key_down]['$values'])
-                                    ruest_EachLike.append(EachLike_dic)
-                                dic_json[key] = ruest_EachLike
-                            else:
-                                ruest_EachLike = []
-                                for x in range(random.randint(minimum, 10)):
-                                    if isinstance(dic_json[key][key_down], dict):
-                                        EachLike_dic = {}
-                                        old_body = dic_json[key][key_down]
-                                        pact_like(old_body, EachLike_dic)
-                                        old_body = EachLike_dic
-                                    else:
-                                        old_body = make_data(dic_json[key][key_down])
-                                    ruest_EachLike.append(old_body)
-                                dic_json[key] = ruest_EachLike
-
-                            pact_eachlike(dic_json, dic, )
-                        else:
-                            dic[key] = {}
-                            pact_eachlike(dic_json[key], dic[key], )
-
-            elif isinstance(dic_json[key], (list, tuple)):
-                new_key = []
-                for key_down in dic_json[key]:
-                    new_dic = {}
-                    retun_dic = pact_eachlike(key_down, new_dic, )
-                    if new_dic:
-                        new_key.append(new_dic)
-                    elif retun_dic:
-                        new_key.append(retun_dic)
-                    else:
-                        new_key.append(key_down)
-                dic[key] = new_key
-
-            else:
-                dic[key] = dic_json[key]
-
-
-def pact_matcher(dic_json, dic):
-    '''
-    校验规则：值匹配 不存在随机
-    :param dic_json:
-    :param dic:
-    :return:
-    '''
-    if isinstance(dic_json, dict):
-        for key in dic_json:
-            if isinstance(dic_json[key], dict):  # 如果dic_json[key]依旧是字典类型
-                for key_down in dic_json[key]:
-                    if key_down == '$Matcher':
-                        if isinstance(dic_json[key][key_down], dict) and '$values' in dic_json[key][key_down].keys():
-                            dic_json[key] = dic_json[key][key_down]['$values']
-                        else:
-                            dic_json[key] = dic_json[key][key_down]
-                        pact_matcher(dic_json, dic)
-                    else:
-                        dic[key] = {}
-                        pact_matcher(dic_json[key], dic[key])
-            elif isinstance(dic_json[key], (list, tuple)):
-                new_key = []
-                for key_down in dic_json[key]:
-                    new_dic = {}
-                    pact_matcher(key_down, new_dic)
-                    if new_dic:
-                        new_key.append(new_dic)
-                    else:
-                        new_key.append(key_down)
-                dic[key] = new_key
-            else:
-                dic[key] = dic_json[key]
-
-
-def pact_enum(dic_json, dic):
-    '''
-    校验规则：枚举匹配
-    :param dic_json:
-    :param dic:
-    :return:
-    '''
-    if isinstance(dic_json, dict):
-        for key in dic_json:
-            if isinstance(dic_json[key], dict):  # 如果dic_json[key]依旧是字典类型
-                for key_down in dic_json[key]:
-                    if key_down == '$Enum':
-                        if isinstance(dic_json[key][key_down], dict) and '$params' in dic_json[key][key_down].keys():
-
-                            if 'iterate_list' in dic_json[key][key_down]['$params'] and \
-                                    dic_json[key][key_down]['$params']['iterate_list']:
-                                dic_json[key] = dic_json[key][key_down]['$values']
-                            else:
-                                print(dic_json, 3333)
-                                dic_json[key] = random.choice(dic_json[key][key_down]['$values'])
-                        else:
-                            dic_json[key] = random.choice(dic_json[key][key_down])
-                        pact_enum(dic_json, dic)
-                    else:
-                        dic[key] = {}
-                        pact_enum(dic_json[key], dic[key])
-            elif isinstance(dic_json[key], (list, tuple)):
-                new_key = []
-                for key_down in dic_json[key]:
-                    new_dic = {}
-                    pact_enum(key_down, new_dic)
-                    if new_dic:
-                        new_key.append(new_dic)
-                    else:
-                        new_key.append(key_down)
-                dic[key] = new_key
-            else:
-                dic[key] = dic_json[key]
-
-
-def pact_term(dic_json, dic):
-    if isinstance(dic_json, dict):
-        for key in dic_json:
-            if isinstance(dic_json[key], dict):
-                for key_down in dic_json[key]:
-                    if key_down == '$Term':
-                        if isinstance(dic_json[key][key_down], dict) and '$values' in dic_json[key][key_down].keys():
-                            if isinstance(dic_json[key][key_down]['$params']['example'], int):
-                                dic_json[key] = int(str_xeger.xeger(dic_json[key][key_down]['$values']))
-                            elif isinstance(dic_json[key][key_down]['$params']['example'], float):
-                                dic_json[key] = float(str_xeger.xeger(dic_json[key][key_down]['$values']))
-                            else:
-                                dic_json[key] = str_xeger.xeger(dic_json[key][key_down]['$values'])
-                        else:
-                            assert False, '契约中的Term类数据不正确'
-                        pact_term(dic_json, dic)
-                    else:
-                        dic[key] = {}
-                        pact_term(dic_json[key], dic[key])
-            elif isinstance(dic_json[key], (list, tuple)):
-                new_key = []
-                for key_down in dic_json[key]:
-                    new_dic = {}
-                    pact_term(key_down, new_dic)
-                    if new_dic:
-                        new_key.append(new_dic)
-                    else:
-                        new_key.append(key_down)
-                dic[key] = new_key
-
-            else:
-                dic[key] = dic_json[key]
-
-
-
 
 
 pactverify_json = {
